@@ -27,6 +27,45 @@ type ServiceHealthState =
   | { status: "fallback"; mode: string; detail: string }
   | { status: "error"; detail: string };
 
+function formatRunnerReadinessLabel(state: ServiceHealthState) {
+  if (state.status === "checking") {
+    return "Checking service";
+  }
+  if (state.status === "ready") {
+    return "Real runner ready";
+  }
+  if (state.status === "fallback") {
+    return "Fixture-only environment";
+  }
+  return "Service offline";
+}
+
+function formatRunnerReadinessDetail(state: ServiceHealthState) {
+  if (state.status === "checking") {
+    return "Checking RF-DETR service…";
+  }
+  if (state.status === "ready" || state.status === "fallback") {
+    return state.detail;
+  }
+  return state.detail;
+}
+
+function formatRunMode(mode: string | undefined) {
+  if (!mode) {
+    return "pending";
+  }
+  if (mode === "real") {
+    return "real";
+  }
+  if (mode === "fixture-forced") {
+    return "fixture-forced";
+  }
+  if (mode === "fixture-fallback") {
+    return "fixture-fallback";
+  }
+  return mode;
+}
+
 export default function App() {
   const initialize = useReplayStore((state) => state.initialize);
   const status = useReplayStore((state) => state.status);
@@ -206,12 +245,12 @@ function SessionPage() {
             ? {
                 status: "ready",
                 mode: health.runtime.mode,
-                detail: health.runtime.detail ?? health.runtime.label
+                detail: `${health.runtime.label} • ${health.runtime.detail ?? health.runtime.label}`
               }
             : {
                 status: "fallback",
                 mode: health.runtime.mode,
-                detail: health.runtime.detail ?? health.runtime.label
+                detail: `${health.runtime.label} • ${health.runtime.detail ?? health.runtime.label}`
               }
         );
       })
@@ -348,7 +387,7 @@ function SessionPage() {
   const visibleLayers = document.overlayLayers;
   const activeRun = document.engineRuns.at(-1);
   const readyToRun = Boolean(assetUrl) && serviceHealth.status !== "error";
-  const serviceDetail = serviceHealth.status === "checking" ? "Checking RF-DETR service…" : serviceHealth.detail;
+  const serviceDetail = formatRunnerReadinessDetail(serviceHealth);
 
   return (
     <div className="workspace-shell">
@@ -370,7 +409,7 @@ function SessionPage() {
               onChange={(event) => setServiceUrl(event.currentTarget.value)}
             />
             <Chip className={`service-chip service-chip--${serviceHealth.status}`}>
-              {serviceHealth.status === "checking" ? "Checking service" : serviceHealth.status === "ready" ? "Runtime ready" : serviceHealth.status === "fallback" ? "Fixture fallback" : "Service offline"}
+              {formatRunnerReadinessLabel(serviceHealth)}
             </Chip>
           </div>
           <Button
@@ -541,7 +580,7 @@ function SessionPage() {
               <span>exclusion zones</span>
             </div>
             <div className="player-status-card">
-              <strong>{activeRun?.diagnostics?.runtimeMode ?? "pending"}</strong>
+              <strong>{formatRunMode(activeRun?.diagnostics?.runtimeMode)}</strong>
               <span>latest runtime mode</span>
             </div>
           </div>
@@ -653,9 +692,9 @@ function SessionPage() {
                 <p className="muted-copy">
                   {exclusionZones.length} zones saved. {draftZonePoints.length} draft points in progress. Service status:{" "}
                   {serviceHealth.status === "ready"
-                    ? serviceHealth.mode
+                    ? "real runner ready"
                     : serviceHealth.status === "fallback"
-                      ? "fixture fallback"
+                      ? "fixture-only environment"
                       : serviceHealth.status === "checking"
                         ? "checking"
                         : "offline"}
@@ -681,7 +720,7 @@ function SessionPage() {
                         </div>
                         <Chip>{run.status}</Chip>
                         {run.diagnostics?.latencyMs ? <span>{Math.round(run.diagnostics.latencyMs)}ms</span> : null}
-                        {run.diagnostics?.runtimeMode ? <span>{run.diagnostics.runtimeMode}</span> : null}
+                        {run.diagnostics?.runtimeMode ? <span>{formatRunMode(run.diagnostics.runtimeMode)}</span> : null}
                         {run.diagnostics?.detectionCount ? <span>{run.diagnostics.detectionCount} detections</span> : null}
                         {run.diagnostics?.warnings?.length ? <p>{run.diagnostics.warnings[0]}</p> : null}
                       </div>

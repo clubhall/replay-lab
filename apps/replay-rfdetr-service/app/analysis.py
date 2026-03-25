@@ -13,7 +13,29 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def generate_fixture_output(request: EngineRequest, warnings: list[str] | None = None) -> EngineOutput:
+def _fixture_insight_title(runtime_mode: str) -> str:
+    if runtime_mode == "fixture-forced":
+        return "Fixture analysis summary"
+    if runtime_mode == "fixture-fallback":
+        return "Fixture fallback summary"
+    return "Fixture analysis summary"
+
+
+def _fixture_insight_body(runtime_mode: str) -> str:
+    if runtime_mode == "fixture-forced":
+        return "Fixture mode was requested explicitly. Synthetic player tracks, ball detections, and post-processed trails were generated for replay debugging."
+    if runtime_mode == "fixture-fallback":
+        return "The official RF-DETR runner was unavailable or failed, so fixture fallback produced synthetic player tracks, ball detections, and post-processed trails for replay debugging."
+    return "Fixture fallback produced player tracks, ball detections, and post-processed trails for replay debugging."
+
+
+def generate_fixture_output(
+    request: EngineRequest,
+    warnings: list[str] | None = None,
+    runtime_mode: str = "fixture-fallback",
+    runner_readiness: str | None = None,
+    runtime_label: str | None = None,
+) -> EngineOutput:
     start_ms, end_ms = request.timeRangeMs or (5_000, 15_000)
     duration_ms = max(2_400, end_ms - start_ms)
     steps = max(8, int(duration_ms / 450))
@@ -92,8 +114,8 @@ def generate_fixture_output(request: EngineRequest, warnings: list[str] | None =
                 "sessionId": request.sessionId,
                 "segmentId": request.segmentId,
                 "kind": "metric",
-                "title": "Fixture analysis summary",
-                "body": "Fixture fallback produced player tracks, ball detections, and post-processed trails for replay debugging.",
+                "title": _fixture_insight_title(runtime_mode),
+                "body": _fixture_insight_body(runtime_mode),
                 "confidence": 0.78,
                 "createdAt": now_iso(),
             }
@@ -103,10 +125,13 @@ def generate_fixture_output(request: EngineRequest, warnings: list[str] | None =
         },
         "raw": {
             "fixtureMode": True,
+            "actualMode": runtime_mode,
+            "runnerReadiness": runner_readiness,
+            "runtimeLabel": runtime_label,
             "classes": request.options.get("classes", ["person", "sports ball"]),
         },
     }
-    return normalize_runtime_payload(request, payload, runtime_mode="fixture")
+    return normalize_runtime_payload(request, payload, runtime_mode=runtime_mode)
 
 
 def normalize_external_output(request: EngineRequest, payload: dict[str, Any], runtime_mode: str) -> EngineOutput:

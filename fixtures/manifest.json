@@ -2,6 +2,21 @@
   "version": "clubhall-benchmark/v1",
   "clips": [
     {
+      "id": "rfdetr-smoke-rally",
+      "title": "RF-DETR Smoke Rally",
+      "camera": "synthetic",
+      "assetPath": "fixtures/samples/rfdetr-smoke-rally.mp4",
+      "startMs": 0,
+      "endMs": 1500,
+      "notes": "Self-generated minimal clip committed in-repo for real-run smoke benchmarking with clear redistribution rights.",
+      "exclusionZones": [],
+      "expectations": {
+        "minTracks": 0,
+        "classes": [],
+        "smoothingRequired": false
+      }
+    },
+    {
       "id": "side-baseline-rally",
       "title": "Side Baseline Rally",
       "camera": "side",

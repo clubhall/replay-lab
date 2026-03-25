@@ -18,6 +18,7 @@ const summary = {
   generatedAt: new Date().toISOString(),
   serviceUrl,
   runtime: health.runtime,
+  runnerReadiness: health.runtime.mode,
   clips: []
 };
 
@@ -68,9 +69,16 @@ for (const clip of manifest.clips) {
     id: clip.id,
     status: completed.run.status,
     outputPath: path.relative(repoRoot, outputPath),
+    requestedMode: process.env.CLUBHALL_RFDETR_REQUEST_MODE ?? "auto",
+    actualMode: completed.run.diagnostics?.runtimeMode ?? "skipped",
+    runtimeLabel: completed.output?.raw?.runtimeLabel ?? completed.run.engineVersion ?? health.runtime.label,
+    runnerReadiness: health.runtime.mode,
+    fixtureFallbackUsed: completed.run.diagnostics?.runtimeMode === "fixture-fallback",
     diagnostics: completed.run.diagnostics ?? {},
+    warnings: completed.run.diagnostics?.warnings ?? [],
     trackCount: completed.output?.tracks?.length ?? 0,
-    insightCount: completed.output?.insights?.length ?? 0
+    insightCount: completed.output?.insights?.length ?? 0,
+    detectionCount: completed.run.diagnostics?.detectionCount ?? 0
   });
 }
 

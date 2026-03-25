@@ -1,56 +1,89 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
-import shlex
 import subprocess
 from pathlib import Path
+import sys
 from typing import Any
 
 from .schemas import EngineRequest
 
+OFFICIAL_RUNNER_LABEL = "official-rfdetr-runner-v1"
+FIXTURE_LABEL = "fixture-rfdetr-v1"
+
+
+def _runner_script_path() -> Path:
+    return Path(__file__).resolve().parents[1] / "runners" / "rfdetr_runner.py"
+
+
+def _default_model_id() -> str:
+    return os.getenv("CLUBHALL_RFDETR_MODEL_ID", "rfdetr-small")
+
+
+def _runner_available() -> tuple[bool, str]:
+    runner_path = _runner_script_path()
+    if not runner_path.exists():
+        return False, f"Missing committed runner at {runner_path}."
+    if importlib.util.find_spec("inference") is None:
+        return (
+            False,
+            "Install runner dependencies with `python3 -m pip install -e apps/replay-rfdetr-service[runner]` to enable the official RF-DETR lane.",
+        )
+    return True, f"Official runner ready via {_default_model_id()}."
+
 
 def get_runtime_status() -> dict[str, Any]:
-    runner = os.getenv("CLUBHALL_RFDETR_RUNNER")
     requested_mode = os.getenv("CLUBHALL_RFDETR_MODE", "auto")
-    if runner:
+    available, detail = _runner_available()
+    if available:
         return {
-            "mode": "external-command",
+            "mode": "real-ready",
             "requestedMode": requested_mode,
             "available": True,
-            "label": "external-command-rfdetr-v1",
-            "detail": runner,
+            "label": OFFICIAL_RUNNER_LABEL,
+            "detail": detail,
+            "modelId": _default_model_id(),
         }
     return {
-        "mode": "fixture",
+        "mode": "fixture-only",
         "requestedMode": requested_mode,
         "available": False,
-        "label": "fixture-rfdetr-v1",
-        "detail": "Set CLUBHALL_RFDETR_RUNNER to enable an external detector command.",
+        "label": FIXTURE_LABEL,
+        "detail": detail,
+        "modelId": _default_model_id(),
     }
 
 
-def run_runtime(asset_path: Path, request: EngineRequest) -> tuple[dict[str, Any] | None, list[str], dict[str, Any]]:
+def run_runtime(asset_path: Path, request: EngineRequest) -> tuple[dict[str, Any] | None, list[str], dict[str, Any], str]:
     runtime_status = get_runtime_status()
     mode = str(request.options.get("mode", "auto"))
     warnings: list[str] = []
 
     if mode == "fixture":
         warnings.append("RF-DETR runtime forced to fixture mode by request options.")
-        return None, warnings, runtime_status
+        return None, warnings, runtime_status, "fixture-forced"
 
     if not runtime_status["available"]:
         warnings.append(runtime_status["detail"])
-        return None, warnings, runtime_status
+        return None, warnings, runtime_status, "fixture-fallback"
 
-    payload = _run_external_command(asset_path, request)
-    return payload, warnings, runtime_status
+    payload = _run_official_runner(asset_path, request)
+    return payload, warnings, runtime_status, "real"
 
 
-def _run_external_command(asset_path: Path, request: EngineRequest) -> dict[str, Any]:
-    runner = os.environ["CLUBHALL_RFDETR_RUNNER"]
-    extra_args = shlex.split(os.getenv("CLUBHALL_RFDETR_RUNNER_ARGS", ""))
-    command = [runner, *extra_args, "--input", str(asset_path), "--session-id", request.sessionId, "--asset-id", request.assetId]
+def _run_official_runner(asset_path: Path, request: EngineRequest) -> dict[str, Any]:
+    command = [
+        sys.executable,
+        str(_runner_script_path()),
+        "--input",
+        str(asset_path),
+        "--session-id",
+        request.sessionId,
+        "--asset-id",
+        request.assetId,
+    ]
 
     if request.segmentId:
         command.extend(["--segment-id", request.segmentId])

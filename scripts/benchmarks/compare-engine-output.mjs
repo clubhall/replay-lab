@@ -12,12 +12,34 @@ await mkdir(outputDir, { recursive: true });
 const manifest = JSON.parse(await readFile(path.join(fixturesDir, "manifest.json"), "utf8"));
 const summary = JSON.parse(await readFile(path.join(outputDir, "benchmark-summary.json"), "utf8"));
 const goldenExport = JSON.parse(await readFile(path.join(fixturesDir, "golden-path", "session-export.fixture.json"), "utf8"));
+const readiness = summary.runnerReadiness ?? summary.runtime?.mode ?? "fixture-only";
+const completedRealClips = summary.clips.filter((clip) => clip.status === "completed" && clip.actualMode === "real").length;
+const benchmarkShouldFail = readiness === "real-ready" && completedRealClips === 0;
+const environmentStatus = readiness === "real-ready" ? "ready" : "not-ready / fixture-only environment";
+const actualModeCounts = {
+  real: summary.clips.filter((clip) => clip.actualMode === "real").length,
+  "fixture-forced": summary.clips.filter((clip) => clip.actualMode === "fixture-forced").length,
+  "fixture-fallback": summary.clips.filter((clip) => clip.actualMode === "fixture-fallback").length,
+  skipped: summary.clips.filter((clip) => clip.actualMode === "skipped" || clip.status === "skipped").length
+};
 
 const lines = [
   "# Benchmark Report",
   "",
   `Generated: ${summary.generatedAt}`,
-  `Runtime: ${summary.runtime.label}`,
+  `Runner readiness: ${readiness}`,
+  `Environment: ${environmentStatus}`,
+  `Runtime label: ${summary.runtime.label}`,
+  "",
+  "## Mode Summary",
+  "",
+  `- real: ${actualModeCounts.real}`,
+  `- fixture-forced: ${actualModeCounts["fixture-forced"]}`,
+  `- fixture-fallback: ${actualModeCounts["fixture-fallback"]}`,
+  `- skipped: ${actualModeCounts.skipped}`,
+  `- benchmark status: ${
+    benchmarkShouldFail ? "fail (runner ready but zero clips completed in real mode)" : "pass"
+  }`,
   ""
 ];
 
@@ -49,10 +71,17 @@ for (const clip of manifest.clips) {
   lines.push(`## ${clip.id}`);
   lines.push("");
   lines.push(`- Status: ${run.status}`);
+  lines.push(`- Requested mode: ${run.requestedMode ?? "auto"}`);
+  lines.push(`- Actual mode: ${run.actualMode ?? "unknown"}`);
+  lines.push(`- Runner readiness: ${run.runnerReadiness ?? readiness}`);
+  lines.push(`- Runtime label: ${run.runtimeLabel ?? "unknown"}`);
   lines.push(`- Tracks: ${trackCount}`);
+  lines.push(`- Detections: ${run.detectionCount ?? run.diagnostics?.detectionCount ?? 0}`);
   lines.push(`- Classes: ${classes.join(", ") || "none"}`);
-  lines.push(`- Runtime mode: ${run.diagnostics?.runtimeMode ?? "unknown"}`);
   lines.push(`- Exclusion zones: ${run.diagnostics?.exclusionZoneCount ?? 0}`);
+  if (run.warnings?.length) {
+    lines.push(`- Warning: ${run.warnings[0]}`);
+  }
   if (clip.id === "side-baseline-rally") {
     lines.push(`- Golden track count delta: ${trackCount - (goldenExport.tracks?.length ?? 0)}`);
   }
@@ -63,3 +92,6 @@ for (const clip of manifest.clips) {
 const reportPath = path.join(outputDir, "benchmark-report.md");
 await writeFile(reportPath, `${lines.join("\n")}\n`);
 console.log(`Wrote benchmark report to ${reportPath}`);
+if (benchmarkShouldFail) {
+  process.exitCode = 1;
+}

@@ -9,7 +9,7 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from .analysis import generate_fixture_output, normalize_external_output
-from .rfdetr_runtime import get_runtime_status, run_runtime
+from .rfdetr_runtime import FIXTURE_LABEL, get_runtime_status, run_runtime
 from .schemas import Diagnostics, EngineRequest, EngineRun, EngineRunTarget, HealthResponse, RunResponse, VideoAsset
 from .storage import now_iso, persist_upload, resolve_asset_path
 
@@ -40,10 +40,7 @@ def create_run(request: EngineRequest) -> EngineRun:
             timeRangeMs=request.timeRangeMs,
         ),
         status="queued",
-        diagnostics=Diagnostics(
-            warnings=[],
-            runtimeMode=runtime_status["mode"],
-        ),
+        diagnostics=Diagnostics(warnings=[]),
         createdAt=timestamp,
         updatedAt=timestamp,
     )
@@ -60,27 +57,45 @@ async def execute_run(run_id: str, request: EngineRequest) -> None:
     start = perf_counter()
     warnings: list[str] = []
     runtime_status = get_runtime_status()
+    actual_mode = "fixture-fallback"
 
     try:
         asset = ASSETS[request.assetId]
-        runtime_payload, runtime_warnings, runtime_status = run_runtime(resolve_asset_path(asset), request)
+        runtime_payload, runtime_warnings, runtime_status, actual_mode = run_runtime(resolve_asset_path(asset), request)
         warnings.extend(runtime_warnings)
         if runtime_payload is None:
             await asyncio.sleep(0.15)
-            output = generate_fixture_output(request, warnings=warnings)
+            output = generate_fixture_output(
+                request,
+                warnings=warnings,
+                runtime_mode=actual_mode,
+                runner_readiness=runtime_status["mode"],
+                runtime_label=runtime_status["label"],
+            )
         else:
-            output = normalize_external_output(request, runtime_payload, runtime_mode=runtime_status["mode"])
+            output = normalize_external_output(request, runtime_payload, runtime_mode=actual_mode)
             output.diagnostics = {
                 **(output.diagnostics or {}),
                 "warnings": [*(output.diagnostics or {}).get("warnings", []), *warnings],
             }
+            output.raw = {
+                **(output.raw or {}),
+                "runnerReadiness": runtime_status["mode"],
+                "runtimeLabel": runtime_status["label"],
+            }
     except Exception as exc:  # pragma: no cover - exercised through service tests
+        actual_mode = "fixture-fallback"
         warnings.append(f"Runtime fallback triggered: {exc}")
-        output = generate_fixture_output(request, warnings=warnings)
+        output = generate_fixture_output(
+            request,
+            warnings=warnings,
+            runtime_mode=actual_mode,
+            runner_readiness=runtime_status["mode"],
+            runtime_label=runtime_status["label"],
+        )
         runtime_status = {
             **runtime_status,
-            "mode": "fixture",
-            "label": "fixture-rfdetr-v1",
+            "label": FIXTURE_LABEL,
         }
 
     latency_ms = (perf_counter() - start) * 1000
@@ -88,11 +103,11 @@ async def execute_run(run_id: str, request: EngineRequest) -> None:
         **(output.diagnostics or {}),
         "latencyMs": latency_ms,
         "warnings": (output.diagnostics or {}).get("warnings", []),
-        "runtimeMode": (output.diagnostics or {}).get("runtimeMode") or runtime_status["mode"],
+        "runtimeMode": (output.diagnostics or {}).get("runtimeMode") or actual_mode,
     }
 
     run.status = "completed"
-    run.engineVersion = runtime_status["label"]
+    run.engineVersion = runtime_status["label"] if actual_mode == "real" else FIXTURE_LABEL
     run.updatedAt = now_iso()
     run.diagnostics = Diagnostics(**diagnostics)
     RUNS[run_id] = run

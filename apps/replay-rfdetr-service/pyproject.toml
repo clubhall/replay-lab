@@ -15,6 +15,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+runner = [
+  "inference>=1.1.0"
+]
 dev = [
   "httpx>=0.27.0",
   "pytest>=8.2.0"

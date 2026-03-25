@@ -43,7 +43,7 @@ def normalize_runtime_payload(
         "runtimeMode": runtime_mode,
         "frameCount": frame_count,
         "detectionCount": detection_count,
-        "smoothingApplied": any(track["className"] == "sports ball" and len(track["points"]) >= 5 for track in tracks),
+        "smoothingApplied": any(_has_smoothed_samples(track) for track in tracks),
         "interpolationApplied": any(_has_interpolated_samples(track) for track in tracks),
         "exclusionZoneCount": len(exclusion_zones),
     }
@@ -69,6 +69,7 @@ def normalize_runtime_payload(
         diagnostics=diagnostics,
         raw={
             **payload.get("raw", {}),
+            "actualMode": runtime_mode,
             "runtimeMode": runtime_mode,
             "trackCount": len(tracks),
             "frameCount": frame_count,
@@ -263,6 +264,7 @@ def _smooth_ball_points(points: list[dict[str, Any]]) -> list[dict[str, Any]]:
         smoothed.append(
             {
                 **point,
+                "smoothed": True,
                 "centroid": {
                     "x": round(x, 4),
                     "y": round(y, 4),
@@ -274,6 +276,10 @@ def _smooth_ball_points(points: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _has_interpolated_samples(track: dict[str, Any]) -> bool:
     return any(point.get("interpolated") for point in track.get("points", []))
+
+
+def _has_smoothed_samples(track: dict[str, Any]) -> bool:
+    return any(point.get("smoothed") for point in track.get("points", []))
 
 
 def _calculate_mean_confidence(tracks: list[dict[str, Any]]) -> float | None:
