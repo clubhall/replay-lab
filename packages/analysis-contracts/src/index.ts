@@ -42,7 +42,14 @@ export const EngineOutputSchema = z.object({
   diagnostics: z
     .object({
       latencyMs: z.number().finite().nonnegative().optional(),
-      warnings: z.array(z.string()).default([])
+      warnings: z.array(z.string()).default([]),
+      meanConfidence: z.number().min(0).max(1).optional(),
+      runtimeMode: z.string().optional(),
+      frameCount: z.number().int().nonnegative().optional(),
+      detectionCount: z.number().int().nonnegative().optional(),
+      smoothingApplied: z.boolean().optional(),
+      interpolationApplied: z.boolean().optional(),
+      exclusionZoneCount: z.number().int().nonnegative().optional()
     })
     .optional(),
   raw: z.record(z.string(), z.unknown()).optional()
@@ -201,6 +208,10 @@ export function mergeEngineOutputIntoDocument(
 type Polygon = {
   points: Array<{ x: number; y: number }>;
 };
+
+export function getExclusionZonesFromLayers(layers: OverlayLayer[]) {
+  return layers.flatMap((layer) => ((layer.payload.zones as Polygon[] | undefined) ?? []).map((zone) => zone.points));
+}
 
 export function proposeSegmentsFromSignals(input: {
   sessionId: string;

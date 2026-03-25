@@ -31,6 +31,17 @@ export function ReplayTimeline({
       };
     });
   }, [durationMs]);
+  const selectedSegment = useMemo(
+    () => segments.find((segment) => segment.id === selectedSegmentId) ?? null,
+    [segments, selectedSegmentId]
+  );
+  const coverageRatio = useMemo(() => {
+    if (durationMs <= 0) {
+      return 0;
+    }
+    const covered = segments.reduce((sum, segment) => sum + (segment.endMs - segment.startMs), 0);
+    return Math.min(100, (covered / durationMs) * 100);
+  }, [durationMs, segments]);
 
   return (
     <div
@@ -41,7 +52,54 @@ export function ReplayTimeline({
     >
       <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ch-color-ink-muted)" }}>
         <strong style={{ color: "var(--ch-color-ink)" }}>Timeline</strong>
-        <span>{formatTimecode(durationMs)}</span>
+        <span>
+          {formatTimecode(currentTimeMs)} / {formatTimecode(durationMs)}
+        </span>
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))",
+          gap: "0.65rem"
+        }}
+      >
+        <div
+          style={{
+            borderRadius: 18,
+            border: "1px solid var(--ch-color-border)",
+            background: "rgba(11, 16, 32, 0.44)",
+            padding: "0.75rem 0.85rem"
+          }}
+        >
+          <strong style={{ display: "block", color: "var(--ch-color-ink)" }}>{segments.length}</strong>
+          <span style={{ color: "var(--ch-color-ink-muted)", fontSize: "0.8rem" }}>segments in session</span>
+        </div>
+        <div
+          style={{
+            borderRadius: 18,
+            border: "1px solid var(--ch-color-border)",
+            background: "rgba(11, 16, 32, 0.44)",
+            padding: "0.75rem 0.85rem"
+          }}
+        >
+          <strong style={{ display: "block", color: "var(--ch-color-ink)" }}>{coverageRatio.toFixed(1)}%</strong>
+          <span style={{ color: "var(--ch-color-ink-muted)", fontSize: "0.8rem" }}>timeline coverage</span>
+        </div>
+        <div
+          style={{
+            borderRadius: 18,
+            border: "1px solid var(--ch-color-border)",
+            background: "rgba(11, 16, 32, 0.44)",
+            padding: "0.75rem 0.85rem"
+          }}
+        >
+          <strong style={{ display: "block", color: "var(--ch-color-ink)" }}>
+            {selectedSegment ? selectedSegment.label : "No segment"}
+          </strong>
+          <span style={{ color: "var(--ch-color-ink-muted)", fontSize: "0.8rem" }}>
+            {selectedSegment ? `${formatTimecode(selectedSegment.startMs)} - ${formatTimecode(selectedSegment.endMs)}` : "Select a segment to inspect it"}
+          </span>
+        </div>
       </div>
 
       <div
@@ -239,4 +297,3 @@ function once(target: HTMLMediaElement, eventName: keyof HTMLMediaElementEventMa
     target.addEventListener("error", onReject, { once: true });
   });
 }
-

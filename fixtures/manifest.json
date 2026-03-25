@@ -1,0 +1,75 @@
+{
+  "version": "clubhall-benchmark/v1",
+  "clips": [
+    {
+      "id": "side-baseline-rally",
+      "title": "Side Baseline Rally",
+      "camera": "side",
+      "assetPath": "fixtures/local/side-baseline-rally.mp4",
+      "startMs": 4000,
+      "endMs": 12000,
+      "notes": "Golden-path side angle with sustained ball visibility.",
+      "goldenOutputPath": "fixtures/golden-path/session-export.fixture.json",
+      "exclusionZones": [
+        {
+          "points": [
+            { "x": 0.02, "y": 0.02 },
+            { "x": 0.22, "y": 0.02 },
+            { "x": 0.22, "y": 0.18 },
+            { "x": 0.02, "y": 0.18 }
+          ]
+        }
+      ],
+      "expectations": {
+        "minTracks": 3,
+        "classes": ["person", "sports ball"],
+        "smoothingRequired": true
+      }
+    },
+    {
+      "id": "ball-visibility-stress",
+      "title": "Ball Visibility Stress",
+      "camera": "side",
+      "assetPath": "fixtures/local/ball-visibility-stress.mp4",
+      "startMs": 10000,
+      "endMs": 18500,
+      "notes": "Fast exchange with partial ball occlusion.",
+      "exclusionZones": [],
+      "expectations": {
+        "minTracks": 2,
+        "classes": ["person", "sports ball"],
+        "smoothingRequired": true
+      }
+    },
+    {
+      "id": "baseline-motion-blur",
+      "title": "Baseline Motion Blur",
+      "camera": "baseline",
+      "assetPath": "fixtures/local/baseline-motion-blur.mp4",
+      "startMs": 18000,
+      "endMs": 27000,
+      "notes": "Stress clip for ball continuity under blur and fast camera motion.",
+      "exclusionZones": [],
+      "expectations": {
+        "minTracks": 2,
+        "classes": ["person", "sports ball"],
+        "smoothingRequired": true
+      }
+    },
+    {
+      "id": "long-match-window",
+      "title": "Long Match Window",
+      "camera": "side",
+      "assetPath": "fixtures/local/long-match-window.mp4",
+      "startMs": 60000,
+      "endMs": 96000,
+      "notes": "Longer sequence for repeated run comparison and workspace replay quality.",
+      "exclusionZones": [],
+      "expectations": {
+        "minTracks": 3,
+        "classes": ["person", "sports ball"],
+        "smoothingRequired": true
+      }
+    }
+  ]
+}

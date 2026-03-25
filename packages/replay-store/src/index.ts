@@ -87,6 +87,7 @@ type ReplayStoreState = {
   deleteSegment: (segmentId: string) => Promise<void>;
   selectSegment: (segmentId?: string) => Promise<void>;
   setOverlayVisibility: (layerId: string, visible: boolean) => Promise<void>;
+  updateOverlayLayer: (layerId: string, patch: Partial<OverlayLayer>) => Promise<void>;
   upsertOverlayLayer: (layer: OverlayLayer) => Promise<void>;
   upsertEngineRun: (run: EngineRun) => Promise<void>;
   completeEngineRun: (run: EngineRun, output: unknown) => Promise<void>;
@@ -366,6 +367,17 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
     }
     const nextDocument = mergeSessionDocument(document, {
       overlayLayers: document.overlayLayers.map((layer) => (layer.id === layerId ? { ...layer, visible } : layer))
+    });
+    await persistDocument(nextDocument);
+    set({ document: nextDocument });
+  },
+  async updateOverlayLayer(layerId, patch) {
+    const { document } = get();
+    if (!document) {
+      return;
+    }
+    const nextDocument = mergeSessionDocument(document, {
+      overlayLayers: document.overlayLayers.map((layer) => (layer.id === layerId ? { ...layer, ...patch } : layer))
     });
     await persistDocument(nextDocument);
     set({ document: nextDocument });

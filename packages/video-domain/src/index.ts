@@ -135,7 +135,13 @@ export const EngineRunSchema = z.object({
       latencyMs: z.number().finite().nonnegative().optional(),
       warnings: z.array(z.string()).default([]),
       meanConfidence: z.number().min(0).max(1).optional(),
-      error: z.string().optional()
+      error: z.string().optional(),
+      runtimeMode: z.string().optional(),
+      frameCount: z.number().int().nonnegative().optional(),
+      detectionCount: z.number().int().nonnegative().optional(),
+      smoothingApplied: z.boolean().optional(),
+      interpolationApplied: z.boolean().optional(),
+      exclusionZoneCount: z.number().int().nonnegative().optional()
     })
     .optional(),
   createdAt: z.string().datetime(),
@@ -365,4 +371,3 @@ export function mergeSessionDocument(
     }
   });
 }
-

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { drawOverlayFrame } from "@clubhall/replay-overlays";
 import type { OverlayLayer, PoseFrame, Track } from "@clubhall/video-domain";
 
@@ -20,6 +20,7 @@ type ReplayPlayerProps = {
   layers: OverlayLayer[];
   tracks: Track[];
   poseFrames: PoseFrame[];
+  overlayContent?: ReactNode;
   onTimeUpdate: (timeMs: number) => void;
   onMetadata: (metadata: VideoMetadata) => void;
   onPlayStateChange: (isPlaying: boolean) => void;
@@ -39,6 +40,7 @@ export function ReplayPlayer({
   layers,
   tracks,
   poseFrames,
+  overlayContent,
   onTimeUpdate,
   onMetadata,
   onPlayStateChange
@@ -243,6 +245,7 @@ export function ReplayPlayer({
                 pointerEvents: "none"
               }}
             />
+            {overlayContent}
           </>
         ) : (
           <div

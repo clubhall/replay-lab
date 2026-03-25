@@ -3,9 +3,9 @@ from __future__ import annotations
 import math
 import random
 from datetime import datetime, timezone
-from statistics import mean
 from typing import Any
 
+from .postprocess import normalize_runtime_payload
 from .schemas import EngineOutput, EngineRequest
 
 
@@ -13,7 +13,7 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def generate_fixture_output(request: EngineRequest) -> EngineOutput:
+def generate_fixture_output(request: EngineRequest, warnings: list[str] | None = None) -> EngineOutput:
     start_ms, end_ms = request.timeRangeMs or (5_000, 15_000)
     duration_ms = max(2_400, end_ms - start_ms)
     steps = max(8, int(duration_ms / 450))
@@ -59,18 +59,10 @@ def generate_fixture_output(request: EngineRequest) -> EngineOutput:
             }
         )
 
-    ball_points = interpolate_short_gaps(ball_points)
-    ball_points = smooth_ball_path(ball_points)
-
-    warnings: list[str] = []
-    if not request.options.get("fixtureMode", True):
-        warnings.append("RF-DETR runtime is not configured; returning fixture analysis instead.")
-
-    return EngineOutput(
-        tracks=[
+    payload: dict[str, Any] = {
+        "tracks": [
             {
                 "id": f"track_player_{request.assetId}",
-                "sessionId": request.sessionId,
                 "label": "Near player",
                 "className": "person",
                 "source": "engine",
@@ -79,7 +71,6 @@ def generate_fixture_output(request: EngineRequest) -> EngineOutput:
             },
             {
                 "id": f"track_opponent_{request.assetId}",
-                "sessionId": request.sessionId,
                 "label": "Far player",
                 "className": "person",
                 "source": "engine",
@@ -88,7 +79,6 @@ def generate_fixture_output(request: EngineRequest) -> EngineOutput:
             },
             {
                 "id": f"track_ball_{request.assetId}",
-                "sessionId": request.sessionId,
                 "label": "Ball",
                 "className": "sports ball",
                 "source": "engine",
@@ -96,69 +86,28 @@ def generate_fixture_output(request: EngineRequest) -> EngineOutput:
                 "points": ball_points,
             },
         ],
-        insights=[
+        "insights": [
             {
                 "id": f"insight_{request.assetId}",
                 "sessionId": request.sessionId,
                 "segmentId": request.segmentId,
                 "kind": "metric",
                 "title": "Fixture analysis summary",
-                "body": "Synthetic RF-DETR fixture run produced player tracks, ball detections, and a smoothed trajectory.",
+                "body": "Fixture fallback produced player tracks, ball detections, and post-processed trails for replay debugging.",
                 "confidence": 0.78,
                 "createdAt": now_iso(),
             }
         ],
-        diagnostics={
-            "warnings": warnings,
-            "meanConfidence": round(mean(point["confidence"] for point in ball_points), 4),
+        "diagnostics": {
+            "warnings": warnings or [],
         },
-        raw={
+        "raw": {
             "fixtureMode": True,
             "classes": request.options.get("classes", ["person", "sports ball"]),
         },
-    )
+    }
+    return normalize_runtime_payload(request, payload, runtime_mode="fixture")
 
 
-def interpolate_short_gaps(points: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    output = [points[0]]
-    for previous, current in zip(points, points[1:]):
-        output.append(current)
-        gap = current["timestampMs"] - previous["timestampMs"]
-        if gap <= 700:
-            continue
-        midpoint = {
-            "timestampMs": previous["timestampMs"] + gap / 2,
-            "centroid": {
-                "x": round((previous["centroid"]["x"] + current["centroid"]["x"]) / 2, 4),
-                "y": round((previous["centroid"]["y"] + current["centroid"]["y"]) / 2, 4),
-            },
-            "confidence": round((previous["confidence"] + current["confidence"]) / 2, 4),
-        }
-        output.insert(-1, midpoint)
-    return output
-
-
-def smooth_ball_path(points: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    if len(points) < 5:
-        return points
-
-    coefficients = (-3 / 35, 12 / 35, 17 / 35, 12 / 35, -3 / 35)
-    smoothed = []
-    for index, point in enumerate(points):
-        window = points[max(0, index - 2) : min(len(points), index + 3)]
-        if len(window) < 5:
-            smoothed.append(point)
-            continue
-        x = sum(sample["centroid"]["x"] * coefficient for sample, coefficient in zip(window, coefficients))
-        y = sum(sample["centroid"]["y"] * coefficient for sample, coefficient in zip(window, coefficients))
-        smoothed.append(
-            {
-                **point,
-                "centroid": {
-                    "x": round(x, 4),
-                    "y": round(y, 4),
-                },
-            }
-        )
-    return smoothed
-
+def normalize_external_output(request: EngineRequest, payload: dict[str, Any], runtime_mode: str) -> EngineOutput:
+    return normalize_runtime_payload(request, payload, runtime_mode=runtime_mode)

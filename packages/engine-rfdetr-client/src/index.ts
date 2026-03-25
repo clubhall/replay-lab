@@ -3,6 +3,16 @@ import { EngineOutputSchema, EngineRequestSchema } from "@clubhall/analysis-cont
 import { EngineRunSchema, VideoAssetSchema, type EngineRun, type VideoAsset } from "@clubhall/video-domain";
 
 const AssetRegistrationResponseSchema = VideoAssetSchema;
+const HealthResponseSchema = z.object({
+  ok: z.boolean(),
+  runtime: z.object({
+    mode: z.string(),
+    requestedMode: z.string().optional(),
+    available: z.boolean(),
+    label: z.string(),
+    detail: z.string().optional()
+  })
+});
 const RunResponseSchema = z.object({
   run: EngineRunSchema,
   output: EngineOutputSchema.optional()
@@ -33,7 +43,8 @@ export function createRfdetrClient(baseUrl: string) {
       timeRangeMs?: [number, number];
       segmentId?: string;
       classes?: string[];
-      fixtureMode?: boolean;
+      mode?: "auto" | "fixture";
+      exclusionZones?: Array<{ points: Array<{ x: number; y: number }> }>;
     }) {
       const payload = EngineRequestSchema.parse({
         version: "v1",
@@ -44,7 +55,8 @@ export function createRfdetrClient(baseUrl: string) {
         timeRangeMs: request.timeRangeMs,
         options: {
           classes: request.classes ?? ["person", "sports ball"],
-          fixtureMode: request.fixtureMode ?? true
+          mode: request.mode ?? "auto",
+          exclusionZones: request.exclusionZones ?? []
         }
       });
 
@@ -58,6 +70,13 @@ export function createRfdetrClient(baseUrl: string) {
       }
       const data = await response.json();
       return RunResponseSchema.parse(data);
+    },
+    async getHealth() {
+      const response = await fetch(`${normalizedBaseUrl}/api/v1/health`);
+      if (!response.ok) {
+        throw new Error(`Health check failed with ${response.status}`);
+      }
+      return HealthResponseSchema.parse(await response.json());
     },
     async getRun(runId: string) {
       const response = await fetch(`${normalizedBaseUrl}/api/v1/runs/${runId}`);

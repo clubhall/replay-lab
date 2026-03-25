@@ -28,3 +28,25 @@ Run tests:
 pnpm exec vitest run
 PYTHONPATH=apps/replay-rfdetr-service python3 -m pytest -s apps/replay-rfdetr-service/tests -q
 ```
+
+## Benchmark harness
+
+Benchmark fixtures live under `fixtures/`.
+
+```bash
+pnpm benchmark:rfdetr
+pnpm benchmark:rfdetr:compare
+```
+
+The runner reads `fixtures/manifest.json`, uploads any locally available clips, and writes normalized outputs to `fixtures/output/`.
+
+## RF-DETR runtime modes
+
+The worker defaults to fixture fallback. To enable a real external detector lane, set:
+
+```bash
+export CLUBHALL_RFDETR_RUNNER=/absolute/path/to/your/rfdetr-runner
+export CLUBHALL_RFDETR_RUNNER_ARGS="--your-extra-flags"
+```
+
+The configured runner must print JSON to stdout. It can return either normalized `tracks` or frame-level `frames` detections; the service will apply interpolation, smoothing, and exclusion-zone filtering before returning normalized output to the app.

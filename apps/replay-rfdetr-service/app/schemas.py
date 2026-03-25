@@ -20,6 +20,12 @@ class Diagnostics(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     meanConfidence: float | None = None
     error: str | None = None
+    runtimeMode: str | None = None
+    frameCount: int | None = None
+    detectionCount: int | None = None
+    smoothingApplied: bool | None = None
+    interpolationApplied: bool | None = None
+    exclusionZoneCount: int | None = None
 
 
 class EngineRunTarget(BaseModel):
@@ -74,3 +80,7 @@ class RunResponse(BaseModel):
     run: EngineRun
     output: EngineOutput | None = None
 
+
+class HealthResponse(BaseModel):
+    ok: bool
+    runtime: dict[str, Any]

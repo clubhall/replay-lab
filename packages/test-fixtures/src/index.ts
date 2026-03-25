@@ -8,6 +8,81 @@ import {
   type ReplaySessionDocument
 } from "@clubhall/video-domain";
 
+export type BenchmarkClipFixture = {
+  id: string;
+  title: string;
+  camera: "side" | "baseline";
+  assetPath: string;
+  startMs: number;
+  endMs: number;
+  notes: string;
+  exclusionZones: Array<{
+    points: Array<{ x: number; y: number }>;
+  }>;
+  expectations: {
+    minTracks: number;
+    classes: string[];
+    smoothingRequired: boolean;
+  };
+};
+
+export const benchmarkClipFixtures: BenchmarkClipFixture[] = [
+  {
+    id: "side-baseline-rally",
+    title: "Side Baseline Rally",
+    camera: "side",
+    assetPath: "fixtures/local/side-baseline-rally.mp4",
+    startMs: 4_000,
+    endMs: 12_000,
+    notes: "Golden-path side angle with sustained ball visibility.",
+    exclusionZones: [
+      {
+        points: [
+          { x: 0.02, y: 0.02 },
+          { x: 0.22, y: 0.02 },
+          { x: 0.22, y: 0.18 },
+          { x: 0.02, y: 0.18 }
+        ]
+      }
+    ],
+    expectations: {
+      minTracks: 3,
+      classes: ["person", "sports ball"],
+      smoothingRequired: true
+    }
+  },
+  {
+    id: "baseline-motion-blur",
+    title: "Baseline Motion Blur",
+    camera: "baseline",
+    assetPath: "fixtures/local/baseline-motion-blur.mp4",
+    startMs: 18_000,
+    endMs: 27_000,
+    notes: "Stress clip for ball continuity under blur and fast camera motion.",
+    exclusionZones: [],
+    expectations: {
+      minTracks: 2,
+      classes: ["person", "sports ball"],
+      smoothingRequired: true
+    }
+  },
+  {
+    id: "long-match-window",
+    title: "Long Match Window",
+    camera: "side",
+    assetPath: "fixtures/local/long-match-window.mp4",
+    startMs: 60_000,
+    endMs: 96_000,
+    notes: "Longer sequence for repeated run comparison and workspace replay quality.",
+    exclusionZones: [],
+    expectations: {
+      minTracks: 3,
+      classes: ["person", "sports ball"],
+      smoothingRequired: true
+    }
+  }
+];
+
 export function createFixtureDocument(): ReplaySessionDocument {
   const document = createSessionDocument({
     id: "asset_fixture",
@@ -103,3 +178,9 @@ export function createFixtureExport() {
   return createSessionExport(createFixtureDocument());
 }
 
+export function createBenchmarkManifest() {
+  return {
+    version: "clubhall-benchmark/v1",
+    clips: benchmarkClipFixtures
+  };
+}

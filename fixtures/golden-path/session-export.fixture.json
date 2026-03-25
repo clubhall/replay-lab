@@ -1,0 +1,179 @@
+{
+  "version": "clubhall-replay/v1",
+  "exportedAt": "2026-03-25T00:00:00.000Z",
+  "assetFingerprint": "fixture-asset",
+  "asset": {
+    "id": "asset_fixture",
+    "fingerprint": "fixture-asset",
+    "name": "sample-match.mp4",
+    "mimeType": "video/mp4",
+    "sizeBytes": 10000000,
+    "durationMs": 180000,
+    "width": 1920,
+    "height": 1080,
+    "createdAt": "2026-03-25T00:00:00.000Z",
+    "updatedAt": "2026-03-25T00:00:00.000Z",
+    "storageHint": {
+      "kind": "external",
+      "fileName": "sample-match.mp4",
+      "relinkRequired": true
+    }
+  },
+  "session": {
+    "id": "session_fixture",
+    "assetId": "asset_fixture",
+    "title": "sample-match",
+    "overlayVisibility": {},
+    "engineRunIds": ["run_fixture"],
+    "tags": [],
+    "lastViewedTimeMs": 0,
+    "createdAt": "2026-03-25T00:00:00.000Z",
+    "updatedAt": "2026-03-25T00:00:00.000Z"
+  },
+  "segments": [],
+  "tracks": [
+    {
+      "id": "track_player_a",
+      "sessionId": "session_fixture",
+      "runId": "run_fixture",
+      "label": "Near player",
+      "className": "person",
+      "source": "engine",
+      "color": "#86efac",
+      "points": [
+        {
+          "timestampMs": 5000,
+          "centroid": { "x": 0.42, "y": 0.71 },
+          "box": { "x": 0.35, "y": 0.47, "width": 0.14, "height": 0.34 },
+          "confidence": 0.95
+        },
+        {
+          "timestampMs": 7000,
+          "centroid": { "x": 0.41, "y": 0.7 },
+          "box": { "x": 0.34, "y": 0.46, "width": 0.15, "height": 0.35 },
+          "confidence": 0.95
+        }
+      ]
+    },
+    {
+      "id": "track_ball",
+      "sessionId": "session_fixture",
+      "runId": "run_fixture",
+      "label": "Ball",
+      "className": "sports ball",
+      "source": "engine",
+      "color": "#7dd3fc",
+      "points": [
+        { "timestampMs": 5200, "centroid": { "x": 0.48, "y": 0.46 }, "confidence": 0.88 },
+        { "timestampMs": 5700, "centroid": { "x": 0.5, "y": 0.44 }, "confidence": 0.89 },
+        { "timestampMs": 6100, "centroid": { "x": 0.55, "y": 0.39 }, "confidence": 0.92 }
+      ]
+    }
+  ],
+  "poseFrames": [],
+  "insights": [
+    {
+      "id": "insight_fixture",
+      "sessionId": "session_fixture",
+      "runId": "run_fixture",
+      "kind": "metric",
+      "title": "Fixture analysis summary",
+      "body": "Synthetic RF-DETR fixture run produced player tracks and a ball trajectory for replay benchmarking.",
+      "confidence": 0.78,
+      "createdAt": "2026-03-25T00:00:00.000Z"
+    }
+  ],
+  "engineRuns": [
+    {
+      "id": "run_fixture",
+      "engineId": "rfdetr",
+      "engineVersion": "fixture-rfdetr-v1",
+      "target": {
+        "assetId": "asset_fixture",
+        "sessionId": "session_fixture"
+      },
+      "status": "completed",
+      "diagnostics": {
+        "latencyMs": 512,
+        "warnings": [],
+        "meanConfidence": 0.9,
+        "runtimeMode": "fixture",
+        "frameCount": 3,
+        "detectionCount": 5,
+        "smoothingApplied": true,
+        "interpolationApplied": false,
+        "exclusionZoneCount": 0
+      },
+      "createdAt": "2026-03-25T00:00:00.000Z",
+      "updatedAt": "2026-03-25T00:00:00.000Z"
+    }
+  ],
+  "overlayLayers": [
+    {
+      "id": "boxes",
+      "sessionId": "session_fixture",
+      "name": "Detections",
+      "kind": "boxes",
+      "source": "system",
+      "visible": true,
+      "color": "#86efac",
+      "bindings": [],
+      "payload": {}
+    },
+    {
+      "id": "trails",
+      "sessionId": "session_fixture",
+      "name": "Trails",
+      "kind": "trails",
+      "source": "system",
+      "visible": true,
+      "color": "#7dd3fc",
+      "bindings": [],
+      "payload": {}
+    },
+    {
+      "id": "keypoints",
+      "sessionId": "session_fixture",
+      "name": "Pose",
+      "kind": "keypoints",
+      "source": "system",
+      "visible": true,
+      "color": "#fbbf24",
+      "bindings": [],
+      "payload": {}
+    },
+    {
+      "id": "court-lines",
+      "sessionId": "session_fixture",
+      "name": "Court",
+      "kind": "court-lines",
+      "source": "system",
+      "visible": true,
+      "color": "#f4efe5",
+      "bindings": [],
+      "payload": {}
+    },
+    {
+      "id": "exclusion-zones",
+      "sessionId": "session_fixture",
+      "name": "Exclusion",
+      "kind": "exclusion-zones",
+      "source": "system",
+      "visible": true,
+      "color": "#f87171",
+      "bindings": [],
+      "payload": {
+        "zones": [
+          {
+            "points": [
+              { "x": 0.02, "y": 0.02 },
+              { "x": 0.22, "y": 0.02 },
+              { "x": 0.22, "y": 0.18 },
+              { "x": 0.02, "y": 0.18 }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

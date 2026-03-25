@@ -1,0 +1,34 @@
+{
+  "version": "clubhall-benchmark/v1",
+  "generatedAt": "2026-03-25T07:38:43.956Z",
+  "serviceUrl": "http://127.0.0.1:8000",
+  "runtime": {
+    "mode": "fixture",
+    "requestedMode": "auto",
+    "available": false,
+    "label": "fixture-rfdetr-v1",
+    "detail": "Set CLUBHALL_RFDETR_RUNNER to enable an external detector command."
+  },
+  "clips": [
+    {
+      "id": "side-baseline-rally",
+      "status": "skipped",
+      "reason": "Missing asset at /home/cosendey/projects/clubhall/clubhall-replay/fixtures/local/side-baseline-rally.mp4"
+    },
+    {
+      "id": "ball-visibility-stress",
+      "status": "skipped",
+      "reason": "Missing asset at /home/cosendey/projects/clubhall/clubhall-replay/fixtures/local/ball-visibility-stress.mp4"
+    },
+    {
+      "id": "baseline-motion-blur",
+      "status": "skipped",
+      "reason": "Missing asset at /home/cosendey/projects/clubhall/clubhall-replay/fixtures/local/baseline-motion-blur.mp4"
+    },
+    {
+      "id": "long-match-window",
+      "status": "skipped",
+      "reason": "Missing asset at /home/cosendey/projects/clubhall/clubhall-replay/fixtures/local/long-match-window.mp4"
+    }
+  ]
+}

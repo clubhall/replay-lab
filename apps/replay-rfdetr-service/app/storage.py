@@ -54,3 +54,8 @@ async def persist_upload(file: UploadFile) -> VideoAsset:
         updatedAt=created_at,
         storage=VideoStorage(kind="external", fileName=file.filename or final_path.name, relinkRequired=True),
     )
+
+
+def resolve_asset_path(asset: VideoAsset) -> Path:
+    suffix = Path(asset.name).suffix or ".bin"
+    return ASSET_DIR / f"{asset.fingerprint}{suffix}"

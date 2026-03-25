@@ -14,10 +14,18 @@ import {
   createId,
   findSelectedSegment,
   formatTimecode,
-  type ReplaySessionDocument
+  type ReplaySessionDocument,
+  type OverlayLayer
 } from "@clubhall/video-domain";
+import { ExclusionZoneEditor } from "./components/ExclusionZoneEditor";
 
 const lfmEnabled = import.meta.env.VITE_ENABLE_LFM_WEBGPU === "true";
+
+type ServiceHealthState =
+  | { status: "checking" }
+  | { status: "ready"; mode: string; detail: string }
+  | { status: "fallback"; mode: string; detail: string }
+  | { status: "error"; detail: string };
 
 export default function App() {
   const initialize = useReplayStore((state) => state.initialize);
@@ -147,6 +155,7 @@ function SessionPage() {
   const deleteSegment = useReplayStore((state) => state.deleteSegment);
   const selectSegment = useReplayStore((state) => state.selectSegment);
   const setOverlayVisibility = useReplayStore((state) => state.setOverlayVisibility);
+  const updateOverlayLayer = useReplayStore((state) => state.updateOverlayLayer);
   const importAnnotationOutput = useReplayStore((state) => state.importAnnotationOutput);
   const exportCurrentSession = useReplayStore((state) => state.exportCurrentSession);
   const relinkAsset = useReplayStore((state) => state.relinkAsset);
@@ -154,9 +163,14 @@ function SessionPage() {
   const completeEngineRun = useReplayStore((state) => state.completeEngineRun);
   const setThumbnail = useReplayStore((state) => state.setThumbnail);
   const setServiceUrl = useReplayStore((state) => state.setServiceUrl);
+  const appStatus = useReplayStore((state) => state.status);
+  const appError = useReplayStore((state) => state.error);
 
   const [inMarkMs, setInMarkMs] = useState<number | null>(null);
   const [annotationImporting, setAnnotationImporting] = useState(false);
+  const [serviceHealth, setServiceHealth] = useState<ServiceHealthState>({ status: "checking" });
+  const [zoneEditorEnabled, setZoneEditorEnabled] = useState(false);
+  const [draftZonePoints, setDraftZonePoints] = useState<Array<{ x: number; y: number }>>([]);
   const annotationRef = useRef<HTMLInputElement | null>(null);
   const relinkRef = useRef<HTMLInputElement | null>(null);
 
@@ -167,6 +181,55 @@ function SessionPage() {
   }, [document?.session.id, loadSession, sessionId]);
 
   const selectedSegment = useMemo(() => (document ? findSelectedSegment(document) : null), [document]);
+  const exclusionLayer = useMemo(
+    () => document?.overlayLayers.find((layer) => layer.kind === "exclusion-zones") ?? null,
+    [document]
+  );
+  const exclusionZones = useMemo(() => readZones(exclusionLayer), [exclusionLayer]);
+  const selectedTrackPointCount = useMemo(
+    () => selectedTracksPointCount(document?.tracks ?? [], selectedSegment),
+    [document?.tracks, selectedSegment]
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    setServiceHealth({ status: "checking" });
+    const client = createRfdetrClient(serviceUrl);
+    void client
+      .getHealth()
+      .then((health) => {
+        if (cancelled) {
+          return;
+        }
+        setServiceHealth(
+          health.runtime.available
+            ? {
+                status: "ready",
+                mode: health.runtime.mode,
+                detail: health.runtime.detail ?? health.runtime.label
+              }
+            : {
+                status: "fallback",
+                mode: health.runtime.mode,
+                detail: health.runtime.detail ?? health.runtime.label
+              }
+        );
+      })
+      .catch((error: Error) => {
+        if (!cancelled) {
+          setServiceHealth({ status: "error", detail: error.message });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [serviceUrl]);
+
+  useEffect(() => {
+    if (!zoneEditorEnabled) {
+      setDraftZonePoints([]);
+    }
+  }, [zoneEditorEnabled]);
 
   useEffect(() => {
     if (!document || !assetUrl) {
@@ -255,7 +318,17 @@ function SessionPage() {
   }
 
   if (!document || document.session.id !== sessionId) {
-    return <div className="loading-shell">Loading session…</div>;
+    return (
+      <div className="loading-shell">
+        <Stack>
+          <strong>{appStatus === "error" ? "Session failed to load" : "Loading session…"}</strong>
+          {appError ? <p className="muted-copy">{appError}</p> : null}
+          <Button variant="ghost" onClick={() => navigate("/")}>
+            Back to Library
+          </Button>
+        </Stack>
+      </div>
+    );
   }
 
   const durationMs = document.asset.durationMs ?? 1;
@@ -273,6 +346,9 @@ function SessionPage() {
     selectedSegment ? track.points.some((point) => point.timestampMs >= selectedSegment.startMs && point.timestampMs <= selectedSegment.endMs) : true
   );
   const visibleLayers = document.overlayLayers;
+  const activeRun = document.engineRuns.at(-1);
+  const readyToRun = Boolean(assetUrl) && serviceHealth.status !== "error";
+  const serviceDetail = serviceHealth.status === "checking" ? "Checking RF-DETR service…" : serviceHealth.detail;
 
   return (
     <div className="workspace-shell">
@@ -287,27 +363,31 @@ function SessionPage() {
           </p>
         </div>
         <div className="workspace-controls">
-          <Input
-            aria-label="RF-DETR service URL"
-            value={serviceUrl}
-            onChange={(event) => setServiceUrl(event.currentTarget.value)}
-          />
-          <Button variant="secondary" onClick={() => void handleRunRfdetr({ document, assetUrl, serviceUrl, upsertEngineRun, completeEngineRun })}>
+          <div className="service-control">
+            <Input
+              aria-label="RF-DETR service URL"
+              value={serviceUrl}
+              onChange={(event) => setServiceUrl(event.currentTarget.value)}
+            />
+            <Chip className={`service-chip service-chip--${serviceHealth.status}`}>
+              {serviceHealth.status === "checking" ? "Checking service" : serviceHealth.status === "ready" ? "Runtime ready" : serviceHealth.status === "fallback" ? "Fixture fallback" : "Service offline"}
+            </Chip>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() =>
+              void handleRunRfdetr({
+                document,
+                assetUrl,
+                serviceUrl,
+                exclusionZones,
+                upsertEngineRun,
+                completeEngineRun
+              })
+            }
+            disabled={!readyToRun}
+          >
             Run RF-DETR
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => void handleRunPose({ document, selectedSegment, upsertEngineRun, completeEngineRun })}
-            disabled={!selectedSegment}
-          >
-            Run Pose
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => void handleRunLfm({ document, selectedSegment, upsertEngineRun, completeEngineRun })}
-            disabled={!selectedSegment}
-          >
-            Run Semantic
           </Button>
           <Button variant="secondary" onClick={() => void handleProposals({ document, upsertEngineRun, completeEngineRun })}>
             Propose Segments
@@ -337,6 +417,20 @@ function SessionPage() {
               Relink Video
             </Button>
           ) : null}
+          <Button
+            variant="ghost"
+            onClick={() => void handleRunPose({ document, selectedSegment, upsertEngineRun, completeEngineRun })}
+            disabled={!selectedSegment}
+          >
+            Experimental Pose
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => void handleRunLfm({ document, selectedSegment, upsertEngineRun, completeEngineRun })}
+            disabled={!selectedSegment}
+          >
+            Experimental Semantic
+          </Button>
           <input
             ref={annotationRef}
             hidden
@@ -388,7 +482,69 @@ function SessionPage() {
             onTimeUpdate={setPlaybackTime}
             onPlayStateChange={setPlayState}
             onMetadata={updateAssetMetadata}
+            overlayContent={
+              <ExclusionZoneEditor
+                zones={exclusionZones}
+                draftPoints={draftZonePoints}
+                enabled={zoneEditorEnabled}
+                onAddPoint={(point) => setDraftZonePoints((current) => [...current, point])}
+                onCancelDraft={() => setDraftZonePoints([])}
+                onCloseDraft={() => {
+                  if (!exclusionLayer || draftZonePoints.length < 3) {
+                    return;
+                  }
+                  void updateOverlayLayer(exclusionLayer.id, {
+                    payload: {
+                      ...exclusionLayer.payload,
+                      zones: [...exclusionZones, { points: draftZonePoints }]
+                    }
+                  });
+                  setDraftZonePoints([]);
+                }}
+                onRemoveLastZone={() => {
+                  if (!exclusionLayer) {
+                    return;
+                  }
+                  void updateOverlayLayer(exclusionLayer.id, {
+                    payload: {
+                      ...exclusionLayer.payload,
+                      zones: exclusionZones.slice(0, -1)
+                    }
+                  });
+                }}
+                onClearZones={() => {
+                  if (!exclusionLayer) {
+                    return;
+                  }
+                  void updateOverlayLayer(exclusionLayer.id, {
+                    payload: {
+                      ...exclusionLayer.payload,
+                      zones: []
+                    }
+                  });
+                  setDraftZonePoints([]);
+                }}
+              />
+            }
           />
+          <div className="player-status-grid">
+            <div className="player-status-card">
+              <strong>{selectedTracks.length}</strong>
+              <span>visible tracks</span>
+            </div>
+            <div className="player-status-card">
+              <strong>{selectedTrackPointCount}</strong>
+              <span>track samples in scope</span>
+            </div>
+            <div className="player-status-card">
+              <strong>{exclusionZones.length}</strong>
+              <span>exclusion zones</span>
+            </div>
+            <div className="player-status-card">
+              <strong>{activeRun?.diagnostics?.runtimeMode ?? "pending"}</strong>
+              <span>latest runtime mode</span>
+            </div>
+          </div>
         </Panel>
 
         <Panel className="workspace-side">
@@ -397,6 +553,20 @@ function SessionPage() {
               <SectionTitle>Selected Segment</SectionTitle>
               {selectedSegment ? (
                 <Stack className="inspector-block">
+                  <div className="segment-summary">
+                    <div>
+                      <strong>{formatTimecode(selectedSegment.startMs)}</strong>
+                      <span>start</span>
+                    </div>
+                    <div>
+                      <strong>{formatTimecode(selectedSegment.endMs)}</strong>
+                      <span>end</span>
+                    </div>
+                    <div>
+                      <strong>{formatTimecode(selectedSegment.endMs - selectedSegment.startMs)}</strong>
+                      <span>duration</span>
+                    </div>
+                  </div>
                   <Field label="Label">
                     <Input
                       value={selectedSegment.label}
@@ -476,6 +646,22 @@ function SessionPage() {
                   </label>
                 ))}
               </div>
+              <div className="zone-controls">
+                <Button variant={zoneEditorEnabled ? "danger" : "secondary"} onClick={() => setZoneEditorEnabled((current) => !current)}>
+                  {zoneEditorEnabled ? "Finish Zone Editing" : "Edit Exclusion Zones"}
+                </Button>
+                <p className="muted-copy">
+                  {exclusionZones.length} zones saved. {draftZonePoints.length} draft points in progress. Service status:{" "}
+                  {serviceHealth.status === "ready"
+                    ? serviceHealth.mode
+                    : serviceHealth.status === "fallback"
+                      ? "fixture fallback"
+                      : serviceHealth.status === "checking"
+                        ? "checking"
+                        : "offline"}
+                  .
+                </p>
+              </div>
             </section>
 
             <section>
@@ -495,6 +681,8 @@ function SessionPage() {
                         </div>
                         <Chip>{run.status}</Chip>
                         {run.diagnostics?.latencyMs ? <span>{Math.round(run.diagnostics.latencyMs)}ms</span> : null}
+                        {run.diagnostics?.runtimeMode ? <span>{run.diagnostics.runtimeMode}</span> : null}
+                        {run.diagnostics?.detectionCount ? <span>{run.diagnostics.detectionCount} detections</span> : null}
                         {run.diagnostics?.warnings?.length ? <p>{run.diagnostics.warnings[0]}</p> : null}
                       </div>
                     ))
@@ -553,6 +741,7 @@ function SessionPage() {
         <span>`I/O` set segment</span>
         <span>`1-5` toggle layers</span>
         <span>`Backspace` delete selected</span>
+        <span>{serviceDetail}</span>
         <Button variant="ghost" onClick={() => navigate("/")}>
           Back to Library
         </Button>
@@ -565,12 +754,14 @@ async function handleRunRfdetr({
   document,
   assetUrl,
   serviceUrl,
+  exclusionZones,
   upsertEngineRun,
   completeEngineRun
 }: {
   document: ReplaySessionDocument;
   assetUrl: string | null;
   serviceUrl: string;
+  exclusionZones: Array<{ points: Array<{ x: number; y: number }> }>;
   upsertEngineRun: (run: ReplaySessionDocument["engineRuns"][number]) => Promise<void>;
   completeEngineRun: (run: ReplaySessionDocument["engineRuns"][number], output: unknown) => Promise<void>;
 }) {
@@ -596,7 +787,8 @@ async function handleRunRfdetr({
       ? [findSelectedSegment(document)!.startMs, findSelectedSegment(document)!.endMs]
       : undefined,
     segmentId: findSelectedSegment(document)?.id,
-    fixtureMode: true
+    mode: "auto",
+    exclusionZones
   });
   await upsertEngineRun(created.run);
   const completed = await client.pollRun(created.run.id, (run) => {
@@ -727,6 +919,24 @@ async function handleProposals({
     {
       segments: proposals.map((segment) => ({ ...segment, id: createId("segment"), source: "proposal" }))
     }
+  );
+}
+
+function readZones(layer: OverlayLayer | null) {
+  return (((layer?.payload.zones as Array<{ points: Array<{ x: number; y: number }> }> | undefined) ?? []).filter(
+    (zone) => zone.points.length >= 3
+  ));
+}
+
+function selectedTracksPointCount(tracks: ReplaySessionDocument["tracks"], selectedSegment: ReturnType<typeof findSelectedSegment>) {
+  if (!selectedSegment) {
+    return tracks.reduce((count, track) => count + track.points.length, 0);
+  }
+  return tracks.reduce(
+    (count, track) =>
+      count +
+      track.points.filter((point) => point.timestampMs >= selectedSegment.startMs && point.timestampMs <= selectedSegment.endMs).length,
+    0
   );
 }
 
