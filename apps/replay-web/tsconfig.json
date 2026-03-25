@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "dist-types",
+    "tsBuildInfoFile": "dist-types/tsconfig.tsbuildinfo",
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"],
+  "references": [
+    { "path": "../../packages/video-domain" },
+    { "path": "../../packages/analysis-contracts" },
+    { "path": "../../packages/design-system" },
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/replay-overlays" },
+    { "path": "../../packages/replay-player" },
+    { "path": "../../packages/replay-timeline" },
+    { "path": "../../packages/replay-store" },
+    { "path": "../../packages/engine-rfdetr-client" },
+    { "path": "../../packages/engine-pose-abstraction" },
+    { "path": "../../packages/engine-lfm-webgpu" }
+  ]
+}
+

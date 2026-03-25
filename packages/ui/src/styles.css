@@ -1,0 +1,116 @@
+@import "@clubhall/design-system/tokens.css";
+
+.ch-panel {
+  background: rgba(18, 26, 49, 0.88);
+  border: 1px solid var(--ch-color-border);
+  border-radius: var(--ch-radius-md);
+  box-shadow: var(--ch-shadow-lg);
+}
+
+.ch-section-title {
+  margin: 0;
+  font-family: var(--ch-font-display);
+  font-size: 0.88rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ch-color-ink-muted);
+}
+
+.ch-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.78rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.ch-button:hover {
+  transform: translateY(-1px);
+}
+
+.ch-button--primary {
+  background: linear-gradient(135deg, var(--ch-color-accent), var(--ch-color-accent-strong));
+  color: #04110a;
+}
+
+.ch-button--secondary {
+  background: rgba(244, 239, 229, 0.08);
+  color: var(--ch-color-ink);
+}
+
+.ch-button--ghost {
+  background: transparent;
+  border: 1px solid var(--ch-color-border);
+  color: var(--ch-color-ink-muted);
+}
+
+.ch-button--danger {
+  background: rgba(248, 113, 113, 0.18);
+  color: #ffd4d4;
+}
+
+.ch-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  background: var(--ch-color-tag);
+  color: var(--ch-color-accent);
+  font-size: 0.82rem;
+}
+
+.ch-input,
+.ch-textarea {
+  width: 100%;
+  border: 1px solid var(--ch-color-border);
+  border-radius: var(--ch-radius-sm);
+  background: rgba(11, 16, 32, 0.82);
+  color: var(--ch-color-ink);
+  padding: 0.75rem 0.85rem;
+  font: inherit;
+}
+
+.ch-textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.ch-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.24rem;
+}
+
+.ch-stat__label,
+.ch-field__hint {
+  color: var(--ch-color-ink-muted);
+  font-size: 0.75rem;
+}
+
+.ch-stat__value {
+  color: var(--ch-color-ink);
+  font-size: 1.02rem;
+}
+
+.ch-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ch-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.ch-field__label {
+  font-size: 0.78rem;
+  color: var(--ch-color-ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+

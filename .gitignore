@@ -1,0 +1,12 @@
+node_modules
+dist
+.turbo
+coverage
+playwright-report
+test-results
+.pytest_cache
+__pycache__
+.venv
+.DS_Store
+apps/replay-rfdetr-service/.data
+

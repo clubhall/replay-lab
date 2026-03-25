@@ -1,0 +1,21 @@
+:root {
+  --ch-color-ink: #f4efe5;
+  --ch-color-ink-muted: rgba(244, 239, 229, 0.72);
+  --ch-color-bg: #0b1020;
+  --ch-color-bg-elevated: #121a31;
+  --ch-color-bg-soft: #192443;
+  --ch-color-border: rgba(244, 239, 229, 0.12);
+  --ch-color-accent: #86efac;
+  --ch-color-accent-strong: #33c66f;
+  --ch-color-warning: #fbbf24;
+  --ch-color-danger: #f87171;
+  --ch-color-tag: rgba(134, 239, 172, 0.16);
+  --ch-gradient-surface: radial-gradient(circle at top left, rgba(51, 198, 111, 0.2), transparent 36%), linear-gradient(135deg, #0b1020 0%, #121a31 44%, #15213f 100%);
+  --ch-font-display: "Manrope", "Segoe UI", sans-serif;
+  --ch-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --ch-radius-sm: 12px;
+  --ch-radius-md: 18px;
+  --ch-radius-lg: 28px;
+  --ch-shadow-lg: 0 24px 70px rgba(0, 0, 0, 0.3);
+}
+

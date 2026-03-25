@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clubhall-replay-rfdetr-service"
+version = "0.1.0"
+description = "Local RF-DETR-compatible analysis worker for ClubHall Replay"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn>=0.30.0",
+  "python-multipart>=0.0.9",
+  "pydantic>=2.8.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.27.0",
+  "pytest>=8.2.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
