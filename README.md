@@ -50,3 +50,7 @@ export CLUBHALL_RFDETR_RUNNER_ARGS="--your-extra-flags"
 ```
 
 The configured runner must print JSON to stdout. It can return either normalized `tracks` or frame-level `frames` detections; the service will apply interpolation, smoothing, and exclusion-zone filtering before returning normalized output to the app.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
