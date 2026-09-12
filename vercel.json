@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "pnpm --filter @clubhall/replay-mobile build",
+  "outputDirectory": "apps/replay-mobile/dist",
+  "rewrites": [
+    { "source": "/((?!assets/|_expo/).*)", "destination": "/index.html" }
+  ]
+}

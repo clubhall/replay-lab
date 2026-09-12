@@ -1,3 +1,7 @@
+## iPhone Replay prototype
+
+The Expo SDK 57 app lives in [`apps/replay-mobile`](apps/replay-mobile). Run `pnpm dev:ios` for Expo Go, or `pnpm build:ios-preview` for its browser export. [Experience and validation notes](docs/replay-ios/README.md).
+
 # ClubHall Replay
 
 Browser-first replay workspace for long-form tennis video review, overlays, and portable session analysis.

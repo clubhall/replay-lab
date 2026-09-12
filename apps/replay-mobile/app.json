@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "ClubHall Replay",
+    "slug": "clubhall-replay",
+    "scheme": "clubhall-replay",
+    "version": "0.1.0",
+    "orientation": "default",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.clubhall.replay"
+    },
+    "android": { "package": "app.clubhall.replay" },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "ClubHall Replay",
+      "themeColor": "#101312"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-video",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose a video to review in ClubHall Replay.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
+    ]
+  }
+}
