@@ -13,7 +13,9 @@
     "e2e": "playwright test",
     "format": "prettier --check .",
     "benchmark:rfdetr": "node ./scripts/benchmarks/run-rfdetr-benchmark.mjs",
-    "benchmark:rfdetr:compare": "node ./scripts/benchmarks/compare-engine-output.mjs"
+    "benchmark:rfdetr:compare": "node ./scripts/benchmarks/compare-engine-output.mjs",
+    "dev:ios": "pnpm --filter @clubhall/replay-mobile dev",
+    "build:ios-preview": "pnpm --filter @clubhall/replay-mobile build"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
