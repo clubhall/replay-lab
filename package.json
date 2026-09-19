@@ -8,12 +8,16 @@
     "build": "turbo build",
     "dev": "turbo dev --parallel",
     "lint": "turbo lint",
-    "test": "turbo test",
+    "test": "vitest run",
     "typecheck": "turbo typecheck",
     "e2e": "playwright test",
     "format": "prettier --check .",
     "benchmark:rfdetr": "node ./scripts/benchmarks/run-rfdetr-benchmark.mjs",
-    "benchmark:rfdetr:compare": "node ./scripts/benchmarks/compare-engine-output.mjs"
+    "benchmark:rfdetr:compare": "node ./scripts/benchmarks/compare-engine-output.mjs",
+    "dev:coach": "pnpm prepare:coach && pnpm --filter replay-coach dev",
+    "e2e:coach": "pnpm prepare:coach && pnpm fixture:coach && playwright test --config playwright.coach.config.ts",
+    "prepare:coach": "turbo build --filter=replay-coach^... && pnpm --filter replay-coach exec node node_modules/ffmpeg-static/install.js",
+    "fixture:coach": "node scripts/coach-fixture.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
@@ -33,5 +37,11 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",
     "vitest": "^4.1.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "ffmpeg-static"
+    ]
   }
 }

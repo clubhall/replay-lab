@@ -29,3 +29,7 @@ Sem uma chamada Jev validada, o produto identifica a decisão como fallback loca
 ## O que este PR entrega
 
 Contexto auditado, proposta de implementação, contratos conceituais, frentes de agentes e critérios de teste. Não entrega um treinador em produção, uma integração Jev autenticada, um novo build TestFlight ou resultados de análise dos vídeos de Arthur.
+
+## Implementation progress
+
+The separate runnable experiment is in [`apps/replay-coach`](../../apps/replay-coach/README.md). See the single [execution record](EXECUTION.md) for implementation, evidence and remaining acceptance gates; the original plan above remains the handoff baseline.
