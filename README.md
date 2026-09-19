@@ -62,3 +62,7 @@ Report vulnerabilities privately — see [SECURITY.md](SECURITY.md).
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Replay Coach experiment
+
+The separate local coach workspace starts with `pnpm dev:coach`. See [run instructions](apps/replay-coach/README.md) and the [execution record](docs/coach/EXECUTION.md) for supported flows and remaining validation.
