@@ -17,6 +17,7 @@ import {
   type ReplaySessionDocument,
   type OverlayLayer
 } from "@clubhall/video-domain";
+import WatchPage from "./WatchPage";
 import { ExclusionZoneEditor } from "./components/ExclusionZoneEditor";
 
 const lfmEnabled = import.meta.env.VITE_ENABLE_LFM_WEBGPU === "true";
@@ -41,7 +42,9 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<WatchPage />} />
+      <Route path="/watch/:sessionId" element={<WatchPage />} />
+      <Route path="/lab" element={<LandingPage />} />
       <Route path="/session/:sessionId" element={<SessionPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -354,8 +357,8 @@ function SessionPage() {
     <div className="workspace-shell">
       <header className="workspace-header">
         <div>
-          <Link className="workspace-breadcrumb" to="/">
-            ClubHall Replay
+          <Link className="workspace-breadcrumb" to={`/watch/${document.session.id}`} onClick={() => setPlayState(false)}>
+            Back to watching
           </Link>
           <h1>{document.session.title}</h1>
           <p>

@@ -129,7 +129,10 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
       status: "ready",
       error: null
     });
-    await database.settings.put({ id: "app", lastSessionId: document.session.id });
+    await database.settings.put({
+      id: "app",
+      lastSessionId: document.session.id
+    });
     return document;
   },
   async loadSession(sessionId) {
@@ -140,17 +143,31 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
       return;
     }
     const assetUrl = await resolveAssetUrl(record.document.asset);
+    const document =
+      !assetUrl && !record.document.asset.storage.relinkRequired
+        ? mergeSessionDocument(record.document, {
+            asset: {
+              storage: {
+                ...record.document.asset.storage,
+                relinkRequired: true
+              }
+            }
+          })
+        : record.document;
     set({
-      document: record.document,
+      document,
       assetUrl,
       playback: {
-        currentTimeMs: record.document.session.lastViewedTimeMs,
+        currentTimeMs: clampPlaybackTime(document.session.lastViewedTimeMs, document.asset.durationMs),
         isPlaying: false
       },
       thumbnails: {},
       status: "ready",
       error: null
     });
+    if (document !== record.document) {
+      await persistDocument(document);
+    }
     await database.settings.put({ id: "app", lastSessionId: sessionId });
   },
   async relinkAsset(file) {
@@ -169,7 +186,7 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
         storage: {
           ...storage,
           fileName: file.name,
-          relinkRequired: false
+          relinkRequired: storage.relinkRequired
         }
       }
     });
@@ -203,21 +220,27 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
     set({
       document,
       assetUrl,
-      playback: { currentTimeMs: document.session.lastViewedTimeMs, isPlaying: false },
+      playback: {
+        currentTimeMs: document.session.lastViewedTimeMs,
+        isPlaying: false
+      },
       thumbnails: {},
       status: "ready",
       error: null
     });
-    await database.settings.put({ id: "app", lastSessionId: document.session.id });
+    await database.settings.put({
+      id: "app",
+      lastSessionId: document.session.id
+    });
     return document;
   },
-  async exportCurrentSession() {
+  exportCurrentSession() {
     const { document } = get();
     if (!document) {
-      throw new Error("No session is loaded.");
+      return Promise.reject(new Error("No session is loaded."));
     }
     const exportBundle = createSessionExport(document);
-    return JSON.stringify(exportBundle, null, 2);
+    return Promise.resolve(JSON.stringify(exportBundle, null, 2));
   },
   async importAnnotationOutput(data) {
     const { document } = get();
@@ -253,38 +276,44 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
     set((state) => ({
       playback: {
         ...state.playback,
-        currentTimeMs: timeMs
+        currentTimeMs: clampPlaybackTime(timeMs, state.document?.asset.durationMs)
       }
     }));
   },
   setPlayState(isPlaying) {
-    const document = get().document;
-    if (document) {
-      void persistDocument(
-        mergeSessionDocument(document, {
-          session: {
-            lastViewedTimeMs: get().playback.currentTimeMs
-          }
-        })
-      );
+    const { document, playback } = get();
+    const currentTimeMs = clampPlaybackTime(playback.currentTimeMs, document?.asset.durationMs);
+    const nextDocument =
+      document && document.session.lastViewedTimeMs !== currentTimeMs
+        ? mergeSessionDocument(document, {
+            session: { lastViewedTimeMs: currentTimeMs }
+          })
+        : document;
+    // Update the in-memory document before persisting so the next moment edit
+    // carries this resume position instead of overwriting it with the old one.
+    set({
+      document: nextDocument,
+      playback: { currentTimeMs, isPlaying }
+    });
+    if (nextDocument && nextDocument !== document) {
+      void persistDocument(nextDocument);
     }
-    set((state) => ({
-      playback: {
-        ...state.playback,
-        isPlaying
-      }
-    }));
   },
   async updateAssetMetadata(metadata) {
     const { document } = get();
-    if (!document) {
+    if (
+      !document ||
+      (document.asset.durationMs === metadata.durationMs &&
+        document.asset.width === metadata.width &&
+        document.asset.height === metadata.height)
+    ) {
       return;
     }
     const nextDocument = mergeSessionDocument(document, {
       asset: metadata
     });
-    await persistDocument(nextDocument);
     set({ document: nextDocument });
+    await persistDocument(nextDocument);
   },
   async addSegment(startMs, endMs, label, source = "manual") {
     const { document } = get();
@@ -298,7 +327,8 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
         selectedSegmentId: segment.id
       }
     });
-    await persistDocument(nextDocument);
+    // Stage this edit before the first await so playback events or another
+    // moment edit cannot persist a document that omits the new moment.
     set({
       document: nextDocument,
       playback: {
@@ -306,6 +336,7 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
         currentTimeMs: segment.startMs
       }
     });
+    await persistDocument(nextDocument);
     return segment;
   },
   async updateSegment(segmentId, patch) {
@@ -322,9 +353,11 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
           })
         : segment
     );
-    const nextDocument = mergeSessionDocument(document, { segments: sortSegments(nextSegments) });
-    await persistDocument(nextDocument);
+    const nextDocument = mergeSessionDocument(document, {
+      segments: sortSegments(nextSegments)
+    });
     set({ document: nextDocument });
+    await persistDocument(nextDocument);
   },
   async deleteSegment(segmentId) {
     const { document } = get();
@@ -334,11 +367,12 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
     const nextDocument = mergeSessionDocument(document, {
       segments: document.segments.filter((segment) => segment.id !== segmentId),
       session: {
-        selectedSegmentId: document.session.selectedSegmentId === segmentId ? undefined : document.session.selectedSegmentId
+        selectedSegmentId:
+          document.session.selectedSegmentId === segmentId ? undefined : document.session.selectedSegmentId
       }
     });
-    await persistDocument(nextDocument);
     set({ document: nextDocument });
+    await persistDocument(nextDocument);
   },
   async selectSegment(segmentId) {
     const { document } = get();
@@ -351,7 +385,6 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
         selectedSegmentId: segmentId
       }
     });
-    await persistDocument(nextDocument);
     set({
       document: nextDocument,
       playback: {
@@ -359,6 +392,7 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
         currentTimeMs: selected?.startMs ?? get().playback.currentTimeMs
       }
     });
+    await persistDocument(nextDocument);
   },
   async setOverlayVisibility(layerId, visible) {
     const { document } = get();
@@ -431,7 +465,14 @@ export const useReplayStore = create<ReplayStoreState>((set, get) => ({
 
 export async function listPersistedSessions(): Promise<SessionSummary[]> {
   const records = await database.documents.orderBy("updatedAt").reverse().toArray();
-  return records.map(({ document, ...summary }) => summary);
+  return records.map(({ id, title, updatedAt, assetFingerprint, assetName, requiresRelink }) => ({
+    id,
+    title,
+    updatedAt,
+    assetFingerprint,
+    assetName,
+    requiresRelink
+  }));
 }
 
 export async function readJsonFile<T>(file: File): Promise<T> {
@@ -499,7 +540,9 @@ async function persistFileToOpfs(assetKey: string, file: File) {
     };
   }
 
-  const videosDirectory = await directory.getDirectoryHandle("videos", { create: true });
+  const videosDirectory = await directory.getDirectoryHandle("videos", {
+    create: true
+  });
   const extension = file.name.includes(".") ? file.name.slice(file.name.lastIndexOf(".")) : ".bin";
   const fileHandle = await videosDirectory.getFileHandle(`${assetKey}${extension}`, { create: true });
   const writable = await fileHandle.createWritable();
@@ -517,21 +560,35 @@ async function readAssetFile(asset: VideoAsset) {
   if (asset.storage.kind !== "opfs" || !asset.storage.opfsPath) {
     return null;
   }
-  const directory = await getOpfsDirectory();
-  if (!directory) {
-    return null;
+  try {
+    const directory = await getOpfsDirectory();
+    if (!directory) {
+      return null;
+    }
+    const [folderName, fileName] = asset.storage.opfsPath.split("/");
+    const folder = await directory.getDirectoryHandle(folderName);
+    const handle = await folder.getFileHandle(fileName);
+    return await handle.getFile();
+  } catch (error) {
+    if (error instanceof DOMException && (error.name === "NotFoundError" || error.name === "NotSupportedError")) {
+      return null;
+    }
+    throw error;
   }
-  const [folderName, fileName] = asset.storage.opfsPath.split("/");
-  const folder = await directory.getDirectoryHandle(folderName);
-  const handle = await folder.getFileHandle(fileName);
-  return handle.getFile();
 }
 
 async function getOpfsDirectory() {
-  if (typeof navigator === "undefined" || !navigator.storage || !("getDirectory" in navigator.storage)) {
+  if (typeof navigator === "undefined" || !navigator.storage || typeof navigator.storage.getDirectory !== "function") {
     return null;
   }
-  return navigator.storage.getDirectory();
+  try {
+    return await navigator.storage.getDirectory();
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "NotSupportedError") {
+      return null;
+    }
+    throw error;
+  }
 }
 
 async function hashFile(file: File) {
@@ -572,3 +629,10 @@ function readVideoMetadata(file: File) {
 }
 
 export type { SessionSummary, EngineRunTarget };
+
+function clampPlaybackTime(timeMs: number, durationMs?: number) {
+  const finiteTime = Number.isFinite(timeMs) ? Math.max(0, timeMs) : 0;
+  return durationMs !== undefined && Number.isFinite(durationMs)
+    ? Math.min(finiteTime, Math.max(0, durationMs))
+    : finiteTime;
+}

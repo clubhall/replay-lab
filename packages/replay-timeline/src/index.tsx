@@ -259,29 +259,55 @@ export function ReplayTimeline({
 
 export async function captureVideoThumbnail(assetUrl: string, timeMs: number) {
   const video = document.createElement("video");
-  video.src = assetUrl;
   video.muted = true;
   video.playsInline = true;
   video.preload = "auto";
 
-  await once(video, "loadedmetadata");
-  video.currentTime = Math.max(0, timeMs / 1000);
-  await once(video, "seeked");
+  try {
+    await waitForVideoEvent(video, "loadedmetadata", () => {
+      video.src = assetUrl;
+      video.load();
+    });
+    const lastFrameTime = Number.isFinite(video.duration)
+      ? Math.max(0, video.duration - 0.001)
+      : 0;
+    const seekTime = Math.min(
+      lastFrameTime,
+      Math.max(0, Number.isFinite(timeMs) ? timeMs / 1000 : 0),
+    );
+    if (Math.abs(video.currentTime - seekTime) > 0.001) {
+      await waitForVideoEvent(video, "seeked", () => {
+        video.currentTime = seekTime;
+      });
+    }
+    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      await waitForVideoEvent(video, "loadeddata");
+    }
 
-  const canvas = document.createElement("canvas");
-  canvas.width = 160;
-  canvas.height = 90;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    throw new Error("Canvas 2D unavailable");
+    const canvas = document.createElement("canvas");
+    canvas.width = 160;
+    canvas.height = 90;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("Canvas 2D unavailable");
+    }
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.7);
+  } finally {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
   }
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/jpeg", 0.7);
 }
 
-function once(target: HTMLMediaElement, eventName: keyof HTMLMediaElementEventMap) {
+function waitForVideoEvent(
+  target: HTMLMediaElement,
+  eventName: keyof HTMLMediaElementEventMap,
+  action?: () => void,
+) {
   return new Promise<void>((resolve, reject) => {
     const cleanup = () => {
+      window.clearTimeout(timeout);
       target.removeEventListener(eventName, onResolve);
       target.removeEventListener("error", onReject);
     };
@@ -293,7 +319,17 @@ function once(target: HTMLMediaElement, eventName: keyof HTMLMediaElementEventMa
       cleanup();
       reject(new Error(`Failed while waiting for ${eventName}`));
     };
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error(`Timed out while waiting for ${eventName}`));
+    }, 10_000);
     target.addEventListener(eventName, onResolve, { once: true });
     target.addEventListener("error", onReject, { once: true });
+    try {
+      action?.();
+    } catch (error) {
+      cleanup();
+      reject(error instanceof Error ? error : new Error(`Failed while waiting for ${eventName}`, { cause: error }));
+    }
   });
 }
