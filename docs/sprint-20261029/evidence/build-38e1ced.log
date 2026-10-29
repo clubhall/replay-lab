@@ -1,0 +1,121 @@
+
+> clubhall-replay@0.1.0 build /workspace/worktrees/replay
+> turbo build
+
+• turbo 2.8.20
+
+   • Packages in scope: @clubhall/analysis-contracts, @clubhall/coach-game, @clubhall/coach-knowledge, @clubhall/design-system, @clubhall/engine-lfm-webgpu, @clubhall/engine-pose-abstraction, @clubhall/engine-rfdetr-client, @clubhall/ffmpeg-tools, @clubhall/replay-overlays, @clubhall/replay-player, @clubhall/replay-store, @clubhall/replay-timeline, @clubhall/test-fixtures, @clubhall/ui, @clubhall/video-domain, replay-coach, replay-web
+   • Running build in 17 packages
+   • Remote caching disabled, using shared worktree cache
+
+@clubhall/video-domain:build: cache hit, replaying logs ef79a1bd2793d4e5
+@clubhall/video-domain:build: 
+@clubhall/video-domain:build: > @clubhall/video-domain@0.1.0 build /workspace/worktrees/replay/packages/video-domain
+@clubhall/video-domain:build: > tsc -p tsconfig.json
+@clubhall/video-domain:build: 
+@clubhall/ffmpeg-tools:build: cache hit, replaying logs 6d2d560178ecf356
+@clubhall/ffmpeg-tools:build: 
+@clubhall/ffmpeg-tools:build: > @clubhall/ffmpeg-tools@0.1.0 build /workspace/worktrees/replay/packages/ffmpeg-tools
+@clubhall/ffmpeg-tools:build: > tsc -p tsconfig.json
+@clubhall/ffmpeg-tools:build: 
+@clubhall/coach-game:build: cache hit, replaying logs 41a004fc24b3de07
+@clubhall/coach-game:build: 
+@clubhall/coach-game:build: > @clubhall/coach-game@0.1.0 build /workspace/worktrees/replay/packages/coach-game
+@clubhall/coach-game:build: > tsc -p tsconfig.json
+@clubhall/coach-game:build: 
+@clubhall/design-system:build: cache hit, replaying logs 18c9754d74626dd4
+@clubhall/design-system:build: 
+@clubhall/design-system:build: > @clubhall/design-system@0.1.0 build /workspace/worktrees/replay/packages/design-system
+@clubhall/design-system:build: > tsc -p tsconfig.json
+@clubhall/design-system:build: 
+@clubhall/coach-knowledge:build: cache hit, replaying logs b64124ba35223057
+@clubhall/coach-knowledge:build: 
+@clubhall/coach-knowledge:build: > @clubhall/coach-knowledge@0.1.0 build /workspace/worktrees/replay/packages/coach-knowledge
+@clubhall/coach-knowledge:build: > tsc -p tsconfig.json
+@clubhall/coach-knowledge:build: 
+@clubhall/replay-timeline:build: cache hit, replaying logs bfae765b5c00db9b
+@clubhall/replay-timeline:build: 
+@clubhall/replay-timeline:build: > @clubhall/replay-timeline@0.1.0 build /workspace/worktrees/replay/packages/replay-timeline
+@clubhall/replay-timeline:build: > tsc -p tsconfig.json
+@clubhall/replay-timeline:build: 
+@clubhall/replay-overlays:build: cache hit, replaying logs f5b978d55a58b124
+@clubhall/replay-overlays:build: 
+@clubhall/replay-overlays:build: > @clubhall/replay-overlays@0.1.0 build /workspace/worktrees/replay/packages/replay-overlays
+@clubhall/replay-overlays:build: > tsc -p tsconfig.json
+@clubhall/replay-overlays:build: 
+@clubhall/analysis-contracts:build: cache hit, replaying logs 0b311daa81105a4b
+@clubhall/analysis-contracts:build: 
+@clubhall/analysis-contracts:build: > @clubhall/analysis-contracts@0.1.0 build /workspace/worktrees/replay/packages/analysis-contracts
+@clubhall/analysis-contracts:build: > tsc -p tsconfig.json
+@clubhall/analysis-contracts:build: 
+replay-coach:build: cache miss, executing 0681c2659114112c
+@clubhall/ui:build: cache hit, replaying logs 3a374f9e49467eee
+@clubhall/ui:build: 
+@clubhall/ui:build: > @clubhall/ui@0.1.0 build /workspace/worktrees/replay/packages/ui
+@clubhall/ui:build: > tsc -p tsconfig.json && cp src/styles.css dist/styles.css
+@clubhall/ui:build: 
+@clubhall/replay-player:build: cache hit, replaying logs 0dc2de8c1de71c5e
+@clubhall/replay-player:build: 
+@clubhall/replay-player:build: > @clubhall/replay-player@0.1.0 build /workspace/worktrees/replay/packages/replay-player
+@clubhall/replay-player:build: > tsc -p tsconfig.json
+@clubhall/replay-player:build: 
+@clubhall/replay-store:build: cache hit, replaying logs 50df7f5c71dad4e9
+@clubhall/replay-store:build: 
+@clubhall/replay-store:build: > @clubhall/replay-store@0.1.0 build /workspace/worktrees/replay/packages/replay-store
+@clubhall/replay-store:build: > tsc -p tsconfig.json
+@clubhall/replay-store:build: 
+@clubhall/engine-lfm-webgpu:build: cache hit, replaying logs bd73e850e656305b
+@clubhall/engine-lfm-webgpu:build: 
+@clubhall/engine-lfm-webgpu:build: > @clubhall/engine-lfm-webgpu@0.1.0 build /workspace/worktrees/replay/packages/engine-lfm-webgpu
+@clubhall/engine-lfm-webgpu:build: > tsc -p tsconfig.json
+@clubhall/engine-lfm-webgpu:build: 
+@clubhall/engine-rfdetr-client:build: cache hit, replaying logs a4d6285eb601b4a2
+@clubhall/engine-rfdetr-client:build: 
+@clubhall/engine-rfdetr-client:build: > @clubhall/engine-rfdetr-client@0.1.0 build /workspace/worktrees/replay/packages/engine-rfdetr-client
+@clubhall/engine-rfdetr-client:build: > tsc -p tsconfig.json
+@clubhall/engine-rfdetr-client:build: 
+@clubhall/engine-pose-abstraction:build: cache hit, replaying logs d150cd32860a2fa7
+@clubhall/engine-pose-abstraction:build: 
+@clubhall/engine-pose-abstraction:build: > @clubhall/engine-pose-abstraction@0.1.0 build /workspace/worktrees/replay/packages/engine-pose-abstraction
+@clubhall/engine-pose-abstraction:build: > tsc -p tsconfig.json
+@clubhall/engine-pose-abstraction:build: 
+@clubhall/test-fixtures:build: cache hit, replaying logs 4e0ad1ad3f66609a
+@clubhall/test-fixtures:build: 
+@clubhall/test-fixtures:build: > @clubhall/test-fixtures@0.1.0 build /workspace/worktrees/replay/packages/test-fixtures
+@clubhall/test-fixtures:build: > tsc -p tsconfig.json
+@clubhall/test-fixtures:build: 
+replay-web:build: cache hit, replaying logs 1ac5378996fda3e0
+replay-web:build: 
+replay-web:build: > replay-web@0.1.0 build /workspace/worktrees/replay/apps/replay-web
+replay-web:build: > vite build
+replay-web:build: 
+replay-web:build: 7:00:38 PM [vite] warning: `esbuild` option was specified by "vite:react-swc" plugin. This option is deprecated, please use `oxc` instead.
+replay-web:build: vite v8.0.2 building client environment for production...
+replay-web:build: [2Kreplay-web:build: transforming...✓ 123 modules transformed.
+replay-web:build: rendering chunks...
+replay-web:build: computing gzip size...
+replay-web:build: dist/index.html                   0.40 kB │ gzip:   0.27 kB
+replay-web:build: dist/assets/index---J-NoWq.css    5.97 kB │ gzip:   1.78 kB
+replay-web:build: dist/assets/index-BqFkShnG.js   455.59 kB │ gzip: 142.27 kB
+replay-web:build: 
+replay-web:build: ✓ built in 436ms
+replay-coach:build: 
+replay-coach:build: > replay-coach@0.1.0 build /workspace/worktrees/replay/apps/replay-coach
+replay-coach:build: > vite build
+replay-coach:build: 
+replay-coach:build: 7:25:12 PM [vite] warning: `esbuild` option was specified by "vite:react-swc" plugin. This option is deprecated, please use `oxc` instead.
+replay-coach:build: vite v8.0.2 building client environment for production...
+replay-coach:build: [2Kreplay-coach:build: transforming...✓ 111 modules transformed.
+replay-coach:build: rendering chunks...
+replay-coach:build: computing gzip size...
+replay-coach:build: dist/index.html                        0.45 kB │ gzip:   0.29 kB
+replay-coach:build: dist/assets/pose.worker-D5r_IU2_.js    0.67 kB
+replay-coach:build: dist/assets/index-Twsz1Ghi.css        12.20 kB │ gzip:   3.53 kB
+replay-coach:build: dist/assets/index-DcC7wxKB.js        341.35 kB │ gzip: 105.97 kB
+replay-coach:build: 
+replay-coach:build: ✓ built in 196ms
+
+ Tasks:    17 successful, 17 total
+Cached:    16 cached, 17 total
+  Time:    908ms 
+

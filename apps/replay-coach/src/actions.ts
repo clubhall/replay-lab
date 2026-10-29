@@ -6,7 +6,12 @@ export const ActionSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("slow"),
-    rate: z.union([z.literal(0.25), z.literal(0.5), z.literal(1)]),
+    rate: z.union([
+      z.literal(0.25),
+      z.literal(0.5),
+      z.literal(1),
+      z.literal(1.5),
+    ]),
   }),
   z.object({
     type: z.literal("loop"),

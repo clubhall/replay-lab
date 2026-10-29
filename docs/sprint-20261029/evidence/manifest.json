@@ -1,0 +1,38 @@
+{
+  "reel": {
+    "version": "reel/v1",
+    "id": "fixture-reel",
+    "revision": 4,
+    "clips": [
+      {
+        "id": "blue",
+        "sessionId": "b",
+        "fingerprint": "c86d2c87d513af27476121458b734e83673161c998f5e4ae793b1d13dffad7b6",
+        "label": "Synthetic blue with audio",
+        "startMs": 10000,
+        "endMs": 40000
+      },
+      {
+        "id": "red",
+        "sessionId": "r",
+        "fingerprint": "09e57415203e1ad5f53ec1ae8b2e9d39d5ed7f5f88b667c9ca65b7f0b366e294",
+        "label": "Synthetic red without audio",
+        "startMs": 0,
+        "endMs": 30000
+      }
+    ]
+  },
+  "sources": [
+    {
+      "fingerprint": "09e57415203e1ad5f53ec1ae8b2e9d39d5ed7f5f88b667c9ca65b7f0b366e294",
+      "size": 27626
+    },
+    {
+      "fingerprint": "c86d2c87d513af27476121458b734e83673161c998f5e4ae793b1d13dffad7b6",
+      "size": 417204
+    }
+  ],
+  "synthetic": true,
+  "outputSha256": "c9685cd90ca37b0c2149af53ec143d77fa7b07e4a3c82961089676c6bede525b",
+  "decode": "Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/tmp/replay-test-u3V9z8/reel.mp4':\n  Metadata:\n    major_brand     : isom\n    minor_version   : 512\n    compatible_brands: isomiso2avc1mp41\n    encoder         : Lavf61.1.100\n  Duration: 00:01:00.02, start: 0.000000, bitrate: 83 kb/s\n  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1280x720 [SAR 1:1 DAR 16:9], 9 kb/s, 30 fps, 30 tbr, 15360 tbn (default)\n      Metadata:\n        handler_name    : VideoHandler\n        vendor_id       : [0][0][0][0]\n        encoder         : Lavc61.3.100 libx264\n  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 65 kb/s (default)\n      Metadata:\n        handler_name    : SoundHandler\n        vendor_id       : [0][0][0][0]\nStream mapping:\n  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))\n  Stream #0:1 -> #0:1 (aac (native) -> pcm_s16le (native))\nPress [q] to stop, [?] for help\nOutput #0, null, to 'pipe:':\n  Metadata:\n    major_brand     : isom\n    minor_version   : 512\n    compatible_brands: isomiso2avc1mp41\n    encoder         : Lavf61.1.100\n  Stream #0:0(und): Video: wrapped_avframe, yuv420p(progressive), 1280x720 [SAR 1:1 DAR 16:9], q=2-31, 200 kb/s, 30 fps, 30 tbn (default)\n      Metadata:\n        handler_name    : VideoHandler\n        vendor_id       : [0][0][0][0]\n        encoder         : Lavc61.3.100 wrapped_avframe\n  Stream #0:1(und): Audio: pcm_s16le, 48000 Hz, stereo, s16, 1536 kb/s (default)\n      Metadata:\n        handler_name    : SoundHandler\n        vendor_id       : [0][0][0][0]\n        encoder         : Lavc61.3.100 pcm_s16le\nframe=  585 fps=0.0 q=-0.0 size=N/A time=00:00:19.53 bitrate=N/A speed=  39x    \rframe= 1233 fps=1231 q=-0.0 size=N/A time=00:00:41.13 bitrate=N/A speed=41.1x    \r[out#0/null @ 0x28ae0940] video:773KiB audio:11264KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown\nframe= 1800 fps=1288 q=-0.0 Lsize=N/A time=00:01:00.03 bitrate=N/A speed=  43x    \n"
+}

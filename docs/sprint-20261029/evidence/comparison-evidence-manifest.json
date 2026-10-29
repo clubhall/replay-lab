@@ -1,0 +1,27 @@
+{
+  "sourceCommit": "38e1cedf60a2bbe7f4238de1f519e8cee16c4202",
+  "platform": "Chromium /usr/bin/chromium; desktop and390px viewport; not physical phone",
+  "media": "Two generated8s MP4s; timing mechanics only",
+  "files": [
+    {
+      "file": "comparison-startup-fixed.json",
+      "sha256": "d2fbb66a330688b59bc83059162de7700942db268f4de164c9d438e3c69efe70"
+    },
+    {
+      "file": "comparison-late-start-fixed.json",
+      "sha256": "817c809b85affd658bccd776eae4e930ddf845adfe46cd36164d5a76cb3d1fe3"
+    },
+    {
+      "file": "comparison-negative-offset-probe.json",
+      "sha256": "98804b2017374b3ba4ff58b75b7812135652fcd24c4d9a984ea9a180706b7f14"
+    },
+    {
+      "file": "comparison-startup-fixed.png",
+      "sha256": "6d9989f0c5a758a07a4a552be983c4b9dcbbe90d8f49a777b02e47b8b4e90dc1"
+    },
+    {
+      "file": "comparison-negative-offset.png",
+      "sha256": "555827811dc41ff375eef82d104d78e22b024e3b9ef8135f4e3c298415043767"
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests/coach",
   outputDir: "./test-results/coach",
-  testMatch: "replay.spec.ts",
+  testMatch: ["replay.spec.ts", "batch-reel.spec.ts", "comparison.spec.ts"],
   timeout: 90_000,
   expect: { timeout: 10_000 },
   retries: 0,

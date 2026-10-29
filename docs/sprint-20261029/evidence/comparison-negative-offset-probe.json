@@ -1,0 +1,21 @@
+{
+  "head": "38e1cedf60a2bbe7f4238de1f519e8cee16c4202",
+  "delta": "",
+  "fixture": "Two 8s synthetic MP4s; same frames, differing container metadata; timing mechanics only.",
+  "paused": {
+    "a": 3.617527,
+    "b": 1.617527,
+    "paused": true,
+    "overflow": false,
+    "coverage": "A: 2.00\u20138.00 s \u00b7 B: 0.00\u20136.00 s \u00b7 cobertura comum 6.00 s \u00b7 deslocamento B \u2212 A: -2.00 s \u00b7 dois originais locais, \u00e1udio silenciado."
+  },
+  "restored": {
+    "a": 3.617527,
+    "b": 1.617527,
+    "paused": true,
+    "overflow": false,
+    "coverage": "A: 2.00\u20138.00 s \u00b7 B: 0.00\u20136.00 s \u00b7 cobertura comum 6.00 s \u00b7 deslocamento B \u2212 A: -2.00 s \u00b7 dois originais locais, \u00e1udio silenciado."
+  },
+  "pageerrors": [],
+  "ending_head": "38e1cedf60a2bbe7f4238de1f519e8cee16c4202"
+}
