@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { ReelEditor } from "./ReelEditor";
+import { VisualIndexPanel } from "./VisualIndexPanel";
 import {
   deriveTennisSession,
   formatPointScore,
@@ -60,6 +62,9 @@ export function App() {
   const [dimensions, setDimensions] = useState({ width: 16, height: 10 }),
     [contacts, setContacts] = useState("");
   const opening = useRef(0);
+  const importing = useRef(false);
+  const batch = useRef<AbortController | null>(null);
+  const [batchStatus, setBatchStatus] = useState("");
   const video = useRef<HTMLVideoElement>(null),
     current = useRef(session),
     queue = useRef(Promise.resolve()),
@@ -83,8 +88,14 @@ export function App() {
     return () => URL.revokeObjectURL(next);
   }, [media]);
   useEffect(() => {
+    const pauseWhenHidden = () => {
+      if (document.hidden) video.current?.pause();
+    };
+    document.addEventListener("visibilitychange", pauseWhenHidden);
     return () => {
+      document.removeEventListener("visibilitychange", pauseWhenHidden);
       operation.current?.abort();
+      batch.current?.abort();
       decision.current?.abort();
     };
   }, []);
@@ -93,7 +104,7 @@ export function App() {
     drag.current = null;
     viewRevision.current++;
     decision.current?.abort();
-    operation.current?.abort();
+    if (!importing.current) operation.current?.abort();
     setPose(null);
     setRoi(null);
     setCoachText("");
@@ -131,7 +142,7 @@ export function App() {
     setMedia(null);
     setSession(s);
     current.current = s;
-    setNow(0);
+    setNow(Math.min(s.lastViewedMs, s.durationMs));
     setPlaying(false);
     setLoop(false);
     setRate(1);
@@ -140,11 +151,18 @@ export function App() {
     setMedia(blob ?? null);
     setSaved("Sessão recuperada");
   }
-  async function importVideo(file: File, relink = false) {
+  async function importVideo(
+    file: File,
+    relink = false,
+    batchSignal?: AbortSignal,
+  ) {
     opening.current++;
     operation.current?.abort();
+    importing.current = true;
     const controller = new AbortController();
     operation.current = controller;
+    const abortImport = () => controller.abort();
+    batchSignal?.addEventListener("abort", abortImport, { once: true });
     setBusy(relink ? "Verificando original…" : "Importando vídeo…");
     setNotice("");
     const temp = URL.createObjectURL(file);
@@ -153,16 +171,25 @@ export function App() {
       probe.preload = "metadata";
       probe.src = temp;
       await new Promise<void>((resolve, reject) => {
-        const timer = setTimeout(
-          () => reject(new Error("Formato não decodificado. Tente H.264 MP4.")),
-          15000,
-        );
-        probe.onloadedmetadata = () => {
+        const cleanup = () => {
           clearTimeout(timer);
+          controller.signal.removeEventListener("abort", cancelled);
+        };
+        const cancelled = () => {
+          cleanup();
+          reject(new Error("Importação cancelada."));
+        };
+        const timer = setTimeout(() => {
+          cleanup();
+          reject(new Error("Formato não decodificado. Tente H.264 MP4."));
+        }, 15000);
+        controller.signal.addEventListener("abort", cancelled, { once: true });
+        probe.onloadedmetadata = () => {
+          cleanup();
           resolve();
         };
         probe.onerror = () => {
-          clearTimeout(timer);
+          cleanup();
           reject(new Error("Vídeo não suportado. Tente H.264 MP4."));
         };
       });
@@ -183,7 +210,18 @@ export function App() {
             `O navegador não guardou o vídeo: ${message(error)}. As anotações permanecem salvas; reconecte ao voltar.`,
           );
         }
-        return;
+        return true;
+      }
+      const duplicate = (await listSessions()).find(
+        (s) => s.fingerprint === hash,
+      );
+      if (duplicate) {
+        if (!(await loadMedia(duplicate.id, hash)))
+          await saveMedia(duplicate.id, file, hash, controller.signal);
+        setNotice(
+          `Original já importado: ${duplicate.name}. Anotações preservadas.`,
+        );
+        return true;
       }
       const durationMs = Math.round(probe.duration * 1000);
       setContacts("");
@@ -192,6 +230,9 @@ export function App() {
         id: createId("coach"),
         revision: 0,
         name: file.name,
+        group: "",
+        recordedDay: "",
+        lastViewedMs: 0,
         fingerprint: hash,
         size: file.size,
         durationMs,
@@ -224,15 +265,36 @@ export function App() {
       setNow(0);
       setLoop(false);
       setSaved("Sessão salva neste navegador");
+      return true;
     } catch (e) {
       setNotice(
         controller.signal.aborted ? "Importação cancelada." : message(e),
       );
+      return false;
     } finally {
+      importing.current = false;
+      batchSignal?.removeEventListener("abort", abortImport);
       URL.revokeObjectURL(temp);
       setBusy("");
       operation.current = null;
     }
+  }
+  async function importBatch(files: File[]) {
+    if (batch.current) return;
+    const controller = new AbortController();
+    batch.current = controller;
+    let complete = 0,
+      failed = 0;
+    for (const [i, file] of files.entries()) {
+      if (controller.signal.aborted) break;
+      setBatchStatus(`Lote ${i + 1}/${files.length}: ${file.name}`);
+      if (await importVideo(file, false, controller.signal)) complete++;
+      else failed++;
+    }
+    setBatchStatus(
+      `${controller.signal.aborted ? "Lote interrompido" : "Lote processado"}: ${complete} disponíveis, ${failed} falhas, ${files.length - complete - failed} não processados. Reimporte para continuar; originais completos não criam duplicatas.`,
+    );
+    batch.current = null;
   }
   function act(raw: Action) {
     if (!session || !video.current) return;
@@ -476,15 +538,17 @@ export function App() {
             data-testid="import-video"
             type="file"
             accept="video/*"
-            disabled={!!busy}
+            multiple
+            disabled={!!busy || !!batch.current}
             onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void importVideo(f);
+              const files = Array.from(e.target.files ?? []);
+              if (files.length) void importBatch(files);
               e.target.value = "";
             }}
           />
         </label>
       </section>
+      {batchStatus && <p role="status">{batchStatus}</p>}
       {notice && (
         <div className="notice" role="status">
           {notice}
@@ -496,7 +560,14 @@ export function App() {
       {busy && (
         <div className="notice" role="status">
           {busy}
-          <button onClick={() => operation.current?.abort()}>Cancelar</button>
+          <button
+            onClick={() => {
+              batch.current?.abort();
+              operation.current?.abort();
+            }}
+          >
+            Cancelar
+          </button>
         </div>
       )}
       <div className="workspace">
@@ -519,6 +590,11 @@ export function App() {
                   onLoadedMetadata={() => {
                     if (video.current) {
                       video.current.playbackRate = rate;
+                      video.current.currentTime =
+                        Math.min(
+                          session?.lastViewedMs ?? 0,
+                          session?.durationMs ?? 0,
+                        ) / 1000;
                       setDimensions({
                         width: video.current.videoWidth,
                         height: video.current.videoHeight,
@@ -544,7 +620,31 @@ export function App() {
                     invalidate();
                     setPlaying(true);
                   }}
-                  onPause={() => setPlaying(false)}
+                  onPause={() => {
+                    setPlaying(false);
+                    if (
+                      session &&
+                      current.current?.id === session.id &&
+                      video.current
+                    ) {
+                      const next = {
+                        ...current.current,
+                        lastViewedMs: Math.round(
+                          video.current.currentTime * 1000,
+                        ),
+                      };
+                      current.current = next;
+                      setSession(next);
+                      queue.current = queue.current
+                        .then(() => saveSession(next))
+                        .then(() => {
+                          setSessions((old) =>
+                            old.map((s) => (s.id === next.id ? next : s)),
+                          );
+                        })
+                        .catch((e) => setNotice(message(e)));
+                    }
+                  }}
                   onEnded={() => {
                     if (loop && video.current && session) {
                       video.current.currentTime = session.startMs / 1000;
@@ -703,7 +803,7 @@ export function App() {
               {time(now)} <em>/ {time(session?.durationMs ?? 0)}</em>
             </span>
             <div className="speed">
-              {([0.25, 0.5, 1] as const).map((r) => (
+              {([0.25, 0.5, 1, 1.5] as const).map((r) => (
                 <button
                   key={r}
                   disabled={!url}
@@ -919,6 +1019,24 @@ export function App() {
                   <>
                     <span className="eyebrow gold">MARCAR & REVER</span>
                     <h2>Um ponto de cada vez.</h2>
+                    <label>
+                      Grupo / sessão
+                      <input
+                        value={session.group}
+                        onChange={(e) => update({ group: e.target.value })}
+                        placeholder="Ex.: Treino de quinta"
+                      />
+                    </label>
+                    <label>
+                      Dia da gravação
+                      <input
+                        type="date"
+                        value={session.recordedDay}
+                        onChange={(e) =>
+                          update({ recordedDay: e.target.value })
+                        }
+                      />
+                    </label>
                     <label>
                       Seu jogador
                       <input
@@ -1241,6 +1359,21 @@ export function App() {
           )}
         </aside>
       </div>
+      <VisualIndexPanel
+        session={session}
+        sessions={sessions}
+        media={media}
+        select={(startMs, endMs) => {
+          update({ startMs, endMs });
+          if (video.current) video.current.currentTime = startMs / 1000;
+        }}
+      />
+      <ReelEditor
+        session={session}
+        sessions={sessions}
+        media={media}
+        disabled={!!busy}
+      />
       <footer>
         <div>
           <span className="eyebrow">SUA COLEÇÃO</span>
@@ -1249,12 +1382,19 @@ export function App() {
               <button
                 disabled={!!busy}
                 key={s.id}
+                aria-label={s.name}
                 className={session?.id === s.id ? "selected" : ""}
                 onClick={() => {
                   void open(s).catch((e) => setNotice(message(e)));
                 }}
               >
                 {s.name}
+                {(s.group || s.recordedDay) && (
+                  <small aria-hidden="true">
+                    {" "}
+                    · {s.group} {s.recordedDay}
+                  </small>
+                )}
               </button>
             ))}
             <label className="text-button">

@@ -802,3 +802,53 @@ label.text-button:focus-within {
   outline: 2px solid #dfc27b;
   outline-offset: 4px;
 }
+.reel-editor,
+.visual-index {
+  margin-block: 28px;
+  padding: 24px;
+  border: 1px solid #655a42;
+  border-radius: 16px;
+  background: #201e19;
+  color: #f2ead9;
+}
+.reel-editor p,
+.visual-index p {
+  line-height: 1.6;
+}
+.reel-editor ol {
+  padding-left: 24px;
+}
+.reel-editor li,
+.visual-index > div {
+  padding-block: 16px;
+  border-bottom: 1px solid #655a42;
+  overflow-wrap: anywhere;
+}
+.reel-editor label,
+.visual-index label {
+  display: block;
+  margin-block: 8px;
+}
+.reel-editor input,
+.visual-index input {
+  display: block;
+  width: min(100%, 360px);
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid #958565;
+  border-radius: 6px;
+  background: #201e19;
+  color: #f2ead9;
+}
+.reel-editor button,
+.visual-index button {
+  min-height: 44px;
+  margin: 4px;
+}
+.reel-editor button:focus-visible,
+.visual-index button:focus-visible,
+.reel-editor input:focus-visible,
+.visual-index input:focus-visible {
+  outline: 2px solid #dfc27b;
+  outline-offset: 3px;
+}

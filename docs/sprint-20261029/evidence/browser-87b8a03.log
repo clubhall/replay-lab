@@ -1,0 +1,20 @@
+[2m[WebServer] [22m(node:27656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:27685) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m[vite:react-swc] We recommend switching to `@vitejs/plugin-react` for improved performance as no swc plugins are used. More information at https://vite.dev/rolldown
+
+Running 5 tests using 1 worker
+
+(node:27742) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:27742) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [coach-desktop] › tests/coach/batch-reel.spec.ts:27:1 › eight-file batch, editable day groups, persistent selection and playable multiasset reel (15.9s)
+  ✓  2 [coach-desktop] › tests/coach/replay.spec.ts:98:1 › OPFS streaming fallback survives reload when IndexedDB Blob storage fails (3.1s)
+coach-desktop IndexedDB metadata {"before":[{"recordTag":"[object Object]","hasFingerprint":true,"hasOpfsName":false,"matchesSessionFingerprint":true,"blobTag":"[object File]","constructor":"File","isBlob":true,"isFile":true,"size":875770,"mimeType":"video/mp4"}],"after":[{"recordTag":"[object Object]","hasFingerprint":true,"hasOpfsName":false,"matchesSessionFingerprint":true,"blobTag":"[object File]","constructor":"File","isBlob":true,"isFile":true,"size":875770,"mimeType":"video/mp4"}]}
+  ✓  3 [coach-desktop] › tests/coach/replay.spec.ts:155:1 › project import binds media to fingerprint and rejects wrong relinking (3.3s)
+  ✓  4 [coach-desktop] › tests/coach/replay.spec.ts:262:1 › real media replay, confirmed points, stable XP, persistence and playable export (10.2s)
+  ✓  5 [coach-desktop] › tests/coach/replay.spec.ts:454:1 › local export rejects malformed origins, out-of-range cuts and playlist indirection (418ms)
+
+  5 passed (38.2s)

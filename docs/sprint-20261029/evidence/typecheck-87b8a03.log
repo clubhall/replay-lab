@@ -1,0 +1,170 @@
+
+> clubhall-replay@0.1.0 typecheck /workspace/worktrees/replay
+> turbo typecheck
+
+• turbo 2.8.20
+
+   • Packages in scope: @clubhall/analysis-contracts, @clubhall/coach-game, @clubhall/coach-knowledge, @clubhall/design-system, @clubhall/engine-lfm-webgpu, @clubhall/engine-pose-abstraction, @clubhall/engine-rfdetr-client, @clubhall/ffmpeg-tools, @clubhall/replay-overlays, @clubhall/replay-player, @clubhall/replay-store, @clubhall/replay-timeline, @clubhall/test-fixtures, @clubhall/ui, @clubhall/video-domain, replay-coach, replay-web
+   • Running typecheck in 17 packages
+   • Remote caching disabled, using shared worktree cache
+
+@clubhall/coach-game:typecheck: cache hit, replaying logs 25ef517e2f6f8f26
+@clubhall/coach-game:typecheck: 
+@clubhall/coach-game:typecheck: > @clubhall/coach-game@0.1.0 typecheck /workspace/worktrees/replay/packages/coach-game
+@clubhall/coach-game:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/coach-game:typecheck: 
+@clubhall/ffmpeg-tools:typecheck: cache hit, replaying logs e2fe7c5f74e1881d
+@clubhall/ffmpeg-tools:typecheck: 
+@clubhall/ffmpeg-tools:typecheck: > @clubhall/ffmpeg-tools@0.1.0 typecheck /workspace/worktrees/replay/packages/ffmpeg-tools
+@clubhall/ffmpeg-tools:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/ffmpeg-tools:typecheck: 
+@clubhall/video-domain:build: cache hit, replaying logs ef79a1bd2793d4e5
+@clubhall/video-domain:build: 
+@clubhall/video-domain:build: > @clubhall/video-domain@0.1.0 build /workspace/worktrees/replay/packages/video-domain
+@clubhall/video-domain:build: > tsc -p tsconfig.json
+@clubhall/video-domain:build: 
+@clubhall/coach-knowledge:build: cache hit, replaying logs b64124ba35223057
+@clubhall/coach-knowledge:build: 
+@clubhall/coach-knowledge:build: > @clubhall/coach-knowledge@0.1.0 build /workspace/worktrees/replay/packages/coach-knowledge
+@clubhall/coach-knowledge:build: > tsc -p tsconfig.json
+@clubhall/coach-knowledge:build: 
+@clubhall/video-domain:typecheck: cache hit, replaying logs 1a2887b14d53767a
+@clubhall/video-domain:typecheck: 
+@clubhall/video-domain:typecheck: > @clubhall/video-domain@0.1.0 typecheck /workspace/worktrees/replay/packages/video-domain
+@clubhall/video-domain:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/video-domain:typecheck: 
+@clubhall/coach-knowledge:typecheck: cache hit, replaying logs 4c89e4576e270e4e
+@clubhall/coach-knowledge:typecheck: 
+@clubhall/coach-knowledge:typecheck: > @clubhall/coach-knowledge@0.1.0 typecheck /workspace/worktrees/replay/packages/coach-knowledge
+@clubhall/coach-knowledge:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/coach-knowledge:typecheck: 
+@clubhall/coach-game:build: cache hit, replaying logs 41a004fc24b3de07
+@clubhall/coach-game:build: 
+@clubhall/coach-game:build: > @clubhall/coach-game@0.1.0 build /workspace/worktrees/replay/packages/coach-game
+@clubhall/coach-game:build: > tsc -p tsconfig.json
+@clubhall/coach-game:build: 
+@clubhall/ffmpeg-tools:build: cache hit, replaying logs 6d2d560178ecf356
+@clubhall/ffmpeg-tools:build: 
+@clubhall/ffmpeg-tools:build: > @clubhall/ffmpeg-tools@0.1.0 build /workspace/worktrees/replay/packages/ffmpeg-tools
+@clubhall/ffmpeg-tools:build: > tsc -p tsconfig.json
+@clubhall/ffmpeg-tools:build: 
+@clubhall/design-system:build: cache hit, replaying logs 18c9754d74626dd4
+@clubhall/design-system:build: 
+@clubhall/design-system:build: > @clubhall/design-system@0.1.0 build /workspace/worktrees/replay/packages/design-system
+@clubhall/design-system:build: > tsc -p tsconfig.json
+@clubhall/design-system:build: 
+@clubhall/replay-timeline:typecheck: cache hit, replaying logs d910f00c693eb749
+@clubhall/replay-timeline:typecheck: 
+@clubhall/replay-timeline:typecheck: > @clubhall/replay-timeline@0.1.0 typecheck /workspace/worktrees/replay/packages/replay-timeline
+@clubhall/replay-timeline:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/replay-timeline:typecheck: 
+@clubhall/analysis-contracts:typecheck: cache hit, replaying logs bdf4c524c5cabe8f
+@clubhall/analysis-contracts:typecheck: 
+@clubhall/analysis-contracts:typecheck: > @clubhall/analysis-contracts@0.1.0 typecheck /workspace/worktrees/replay/packages/analysis-contracts
+@clubhall/analysis-contracts:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/analysis-contracts:typecheck: 
+@clubhall/replay-overlays:build: cache hit, replaying logs f5b978d55a58b124
+@clubhall/replay-overlays:build: 
+@clubhall/replay-overlays:build: > @clubhall/replay-overlays@0.1.0 build /workspace/worktrees/replay/packages/replay-overlays
+@clubhall/replay-overlays:build: > tsc -p tsconfig.json
+@clubhall/replay-overlays:build: 
+@clubhall/replay-timeline:build: cache hit, replaying logs bfae765b5c00db9b
+@clubhall/replay-timeline:build: 
+@clubhall/replay-timeline:build: > @clubhall/replay-timeline@0.1.0 build /workspace/worktrees/replay/packages/replay-timeline
+@clubhall/replay-timeline:build: > tsc -p tsconfig.json
+@clubhall/replay-timeline:build: 
+@clubhall/design-system:typecheck: cache hit, replaying logs 806b927acc9c54f1
+@clubhall/design-system:typecheck: 
+@clubhall/design-system:typecheck: > @clubhall/design-system@0.1.0 typecheck /workspace/worktrees/replay/packages/design-system
+@clubhall/design-system:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/design-system:typecheck: 
+@clubhall/replay-overlays:typecheck: cache hit, replaying logs 789901ed9a49eafd
+@clubhall/replay-overlays:typecheck: 
+@clubhall/replay-overlays:typecheck: > @clubhall/replay-overlays@0.1.0 typecheck /workspace/worktrees/replay/packages/replay-overlays
+@clubhall/replay-overlays:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/replay-overlays:typecheck: 
+replay-coach:typecheck: cache miss, executing eb2ccbecfd72c0b4
+@clubhall/analysis-contracts:build: cache hit, replaying logs 0b311daa81105a4b
+@clubhall/analysis-contracts:build: 
+@clubhall/analysis-contracts:build: > @clubhall/analysis-contracts@0.1.0 build /workspace/worktrees/replay/packages/analysis-contracts
+@clubhall/analysis-contracts:build: > tsc -p tsconfig.json
+@clubhall/analysis-contracts:build: 
+@clubhall/ui:build: cache hit, replaying logs 3a374f9e49467eee
+@clubhall/ui:build: 
+@clubhall/ui:build: > @clubhall/ui@0.1.0 build /workspace/worktrees/replay/packages/ui
+@clubhall/ui:build: > tsc -p tsconfig.json && cp src/styles.css dist/styles.css
+@clubhall/ui:build: 
+@clubhall/ui:typecheck: cache hit, replaying logs 638bbe0609676e87
+@clubhall/ui:typecheck: 
+@clubhall/ui:typecheck: > @clubhall/ui@0.1.0 typecheck /workspace/worktrees/replay/packages/ui
+@clubhall/ui:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/ui:typecheck: 
+@clubhall/replay-player:typecheck: cache hit, replaying logs 3ce0af5e39d592d4
+@clubhall/replay-player:typecheck: 
+@clubhall/replay-player:typecheck: > @clubhall/replay-player@0.1.0 typecheck /workspace/worktrees/replay/packages/replay-player
+@clubhall/replay-player:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/replay-player:typecheck: 
+@clubhall/engine-pose-abstraction:typecheck: cache hit, replaying logs 6402e6f6289da057
+@clubhall/engine-pose-abstraction:typecheck: 
+@clubhall/engine-pose-abstraction:typecheck: > @clubhall/engine-pose-abstraction@0.1.0 typecheck /workspace/worktrees/replay/packages/engine-pose-abstraction
+@clubhall/engine-pose-abstraction:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/engine-pose-abstraction:typecheck: 
+@clubhall/engine-lfm-webgpu:build: cache hit, replaying logs bd73e850e656305b
+@clubhall/engine-lfm-webgpu:build: 
+@clubhall/engine-lfm-webgpu:build: > @clubhall/engine-lfm-webgpu@0.1.0 build /workspace/worktrees/replay/packages/engine-lfm-webgpu
+@clubhall/engine-lfm-webgpu:build: > tsc -p tsconfig.json
+@clubhall/engine-lfm-webgpu:build: 
+@clubhall/engine-rfdetr-client:build: cache hit, replaying logs a4d6285eb601b4a2
+@clubhall/engine-rfdetr-client:build: 
+@clubhall/engine-rfdetr-client:build: > @clubhall/engine-rfdetr-client@0.1.0 build /workspace/worktrees/replay/packages/engine-rfdetr-client
+@clubhall/engine-rfdetr-client:build: > tsc -p tsconfig.json
+@clubhall/engine-rfdetr-client:build: 
+@clubhall/replay-store:build: cache hit, replaying logs 50df7f5c71dad4e9
+@clubhall/replay-store:build: 
+@clubhall/replay-store:build: > @clubhall/replay-store@0.1.0 build /workspace/worktrees/replay/packages/replay-store
+@clubhall/replay-store:build: > tsc -p tsconfig.json
+@clubhall/replay-store:build: 
+@clubhall/engine-pose-abstraction:build: cache hit, replaying logs d150cd32860a2fa7
+@clubhall/engine-pose-abstraction:build: 
+@clubhall/engine-pose-abstraction:build: > @clubhall/engine-pose-abstraction@0.1.0 build /workspace/worktrees/replay/packages/engine-pose-abstraction
+@clubhall/engine-pose-abstraction:build: > tsc -p tsconfig.json
+@clubhall/engine-pose-abstraction:build: 
+@clubhall/replay-player:build: cache hit, replaying logs 0dc2de8c1de71c5e
+@clubhall/replay-player:build: 
+@clubhall/replay-player:build: > @clubhall/replay-player@0.1.0 build /workspace/worktrees/replay/packages/replay-player
+@clubhall/replay-player:build: > tsc -p tsconfig.json
+@clubhall/replay-player:build: 
+@clubhall/engine-rfdetr-client:typecheck: cache hit, replaying logs e314de506558d4ee
+@clubhall/engine-rfdetr-client:typecheck: 
+@clubhall/engine-rfdetr-client:typecheck: > @clubhall/engine-rfdetr-client@0.1.0 typecheck /workspace/worktrees/replay/packages/engine-rfdetr-client
+@clubhall/engine-rfdetr-client:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/engine-rfdetr-client:typecheck: 
+@clubhall/replay-store:typecheck: cache hit, replaying logs fa1b23c6a1a89d4b
+@clubhall/replay-store:typecheck: 
+@clubhall/replay-store:typecheck: > @clubhall/replay-store@0.1.0 typecheck /workspace/worktrees/replay/packages/replay-store
+@clubhall/replay-store:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/replay-store:typecheck: 
+@clubhall/test-fixtures:typecheck: cache hit, replaying logs 0ad3cb3154f2f39b
+@clubhall/test-fixtures:typecheck: 
+@clubhall/test-fixtures:typecheck: > @clubhall/test-fixtures@0.1.0 typecheck /workspace/worktrees/replay/packages/test-fixtures
+@clubhall/test-fixtures:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/test-fixtures:typecheck: 
+@clubhall/engine-lfm-webgpu:typecheck: cache hit, replaying logs 109bed2cf25653d2
+@clubhall/engine-lfm-webgpu:typecheck: 
+@clubhall/engine-lfm-webgpu:typecheck: > @clubhall/engine-lfm-webgpu@0.1.0 typecheck /workspace/worktrees/replay/packages/engine-lfm-webgpu
+@clubhall/engine-lfm-webgpu:typecheck: > tsc -p tsconfig.json --noEmit
+@clubhall/engine-lfm-webgpu:typecheck: 
+replay-web:typecheck: cache hit, replaying logs 3a36d7d2faca3dd3
+replay-web:typecheck: 
+replay-web:typecheck: > replay-web@0.1.0 typecheck /workspace/worktrees/replay/apps/replay-web
+replay-web:typecheck: > tsc -p tsconfig.json --noEmit
+replay-web:typecheck: 
+replay-coach:typecheck: 
+replay-coach:typecheck: > replay-coach@0.1.0 typecheck /workspace/worktrees/replay/apps/replay-coach
+replay-coach:typecheck: > tsc --noEmit
+replay-coach:typecheck: 
+
+ Tasks:    31 successful, 31 total
+Cached:    30 cached, 31 total
+  Time:    6.763s 
+

@@ -8,6 +8,8 @@ import { Transform } from "node:stream";
 import { spawn } from "node:child_process";
 import ffmpeg from "ffmpeg-static";
 import { compose } from "./decision";
+import { renderReel } from "./reel";
+import { analyzeVisualChanges } from "./visual-index";
 const MAX_BYTES = 1024 * 1024 * 1024;
 function json(res: ServerResponse, status: number, data: unknown) {
   res.writeHead(status, { "Content-Type": "application/json" });
@@ -39,6 +41,13 @@ export async function api(
   });
   let directory: string | undefined;
   try {
+    if (url.pathname === "/api/coach/index") {
+      return json(res, 200, await analyzeVisualChanges(req, controller.signal));
+    }
+    if (url.pathname === "/api/coach/reel") {
+      await renderReel(req, res, controller.signal);
+      return;
+    }
     if (url.pathname === "/api/coach/decision") {
       let body = "";
       for await (const chunk of req) {
