@@ -2,6 +2,8 @@
 
 A separate, video-first web workspace. The existing Replay web app and unmerged iOS PR remain independent.
 
+The 29 October increment adds batch import/review, revisioned multiasset MP4 reels and reference-aligned local comparison. Read the [current coverage and limits](../../docs/sprint-20261029/REPLAY.md) and [comparison evidence](../../docs/sprint-20261029/COMPARISON.md). Sporting-analysis accuracy, shared CLUBHall identity and physical iPhone acceptance remain open.
+
 ## Run
 
 From the repository root, with Node 22+ and pnpm 10:

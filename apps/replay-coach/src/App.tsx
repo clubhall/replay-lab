@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ReelEditor } from "./ReelEditor";
 import { VisualIndexPanel } from "./VisualIndexPanel";
+import { ComparisonPanel } from "./ComparisonPanel";
 import {
   deriveTennisSession,
   formatPointScore,
@@ -1373,6 +1374,12 @@ export function App() {
         sessions={sessions}
         media={media}
         disabled={!!busy}
+      />
+      <ComparisonPanel
+        sessions={sessions}
+        session={session}
+        media={media}
+        pauseMain={() => video.current?.pause()}
       />
       <footer>
         <div>

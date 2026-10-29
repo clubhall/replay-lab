@@ -1,0 +1,15 @@
+{
+  "head": "38e1cedf60a2bbe7f4238de1f519e8cee16c4202",
+  "delta": "",
+  "controlled_failure": "B first play delayed until release; second play rejects; then first late fulfillment starts native media.",
+  "late_result": {
+    "aPaused": true,
+    "bPaused": true,
+    "bTime": 0.000368,
+    "buttons": [
+      "Reproduzir compara\u00e7\u00e3o",
+      "Ir \u00e0s refer\u00eancias",
+      "Recarregar originais da compara\u00e7\u00e3o"
+    ]
+  }
+}

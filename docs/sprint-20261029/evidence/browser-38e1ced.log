@@ -1,0 +1,16 @@
+
+Running 6 tests using 1 worker
+
+(node:35509) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:35509) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [coach-desktop] › tests/coach/batch-reel.spec.ts:27:1 › eight-file batch, editable day groups, persistent selection and playable multiasset reel (8.0s)
+  ✓  2 [coach-desktop] › tests/coach/comparison.spec.ts:38:1 › two actual local videos stay reference-aligned through pause, resume, end and reload (12.3s)
+  ✓  3 [coach-desktop] › tests/coach/replay.spec.ts:98:1 › OPFS streaming fallback survives reload when IndexedDB Blob storage fails (916ms)
+coach-desktop IndexedDB metadata {"before":[{"recordTag":"[object Object]","hasFingerprint":true,"hasOpfsName":false,"matchesSessionFingerprint":true,"blobTag":"[object File]","constructor":"File","isBlob":true,"isFile":true,"size":875770,"mimeType":"video/mp4"}],"after":[{"recordTag":"[object Object]","hasFingerprint":true,"hasOpfsName":false,"matchesSessionFingerprint":true,"blobTag":"[object File]","constructor":"File","isBlob":true,"isFile":true,"size":875770,"mimeType":"video/mp4"}]}
+  ✓  4 [coach-desktop] › tests/coach/replay.spec.ts:155:1 › project import binds media to fingerprint and rejects wrong relinking (1.3s)
+  ✓  5 [coach-desktop] › tests/coach/replay.spec.ts:262:1 › real media replay, confirmed points, stable XP, persistence and playable export (5.8s)
+  ✓  6 [coach-desktop] › tests/coach/replay.spec.ts:454:1 › local export rejects malformed origins, out-of-range cuts and playlist indirection (168ms)
+
+  6 passed (30.0s)
